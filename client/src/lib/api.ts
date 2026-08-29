@@ -29,4 +29,8 @@ export const api = {
   recommendSize: (heightCm: number, ageYears: number) =>
     req(`/size-recommendation`, { method: "POST", body: JSON.stringify({ heightCm, ageYears }) }),
   checkout: (body: unknown) => req(`/checkout`, { method: "POST", body: JSON.stringify(body) }),
+  initiatePayment: (body: unknown) => req(`/payments/checkout`, { method: "POST", body: JSON.stringify(body) }),
+  getPaymentStatus: (orderId: string) => req(`/payments/status/${orderId}`),
+  mockCompletePayment: (reference: string, outcome: "success" | "failed") =>
+    req(`/payments/mock-complete`, { method: "POST", body: JSON.stringify({ reference, outcome }) }),
 };

@@ -11,6 +11,7 @@ import SearchResults from "../pages/SearchResults";
 import Account from "../pages/Account";
 import SizeGuide from "../pages/SizeGuide";
 import OrderTracking from "../pages/OrderTracking";
+import PaymentReturn from "../pages/PaymentReturn";
 
 export default function StorefrontLayout() {
   return (
@@ -30,6 +31,7 @@ export default function StorefrontLayout() {
           <Route path="/account" element={<Account />} />
           <Route path="/size-guide" element={<SizeGuide />} />
           <Route path="/orders/:id" element={<OrderTracking />} />
+          <Route path="/payments/return" element={<PaymentReturn />} />
         </Routes>
       </main>
       <Footer />
