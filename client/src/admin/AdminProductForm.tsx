@@ -214,7 +214,7 @@ export default function AdminProductForm() {
 
       <form onSubmit={submit} className="space-y-8">
         {error && (
-          <p className="bg-rose/10 border border-rose/40 text-rose text-[13px] px-4 py-3 rounded-sm">
+          <p className="bg-rose/10 border border-rose/40 text-rose text-[13px] px-4 py-3 rounded-sm whitespace-pre-line">
             {error}
           </p>
         )}

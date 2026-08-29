@@ -14,8 +14,27 @@ export function clearAdminKey() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+async function parseJsonOrDiagnose(res: Response, url: string): Promise<any> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    const looksLikeHtml = text.trim().startsWith("<");
+    if (looksLikeHtml) {
+      throw new Error(
+        `Got a webpage instead of API data from: ${url}\n` +
+          `This means VITE_API_URL isn't pointing at the backend correctly. ` +
+          `Configured API base: "${API_ORIGIN || "(empty — not set)"}". ` +
+          `Check the frontend service's VITE_API_URL variable on Railway and redeploy.`
+      );
+    }
+    throw new Error(`Unexpected response from ${url}: ${text.slice(0, 200)}`);
+  }
+}
+
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const url = `${BASE}${path}`;
+  const res = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
       "x-admin-key": getAdminKey() || "",
@@ -27,11 +46,11 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
     window.location.href = "/admin/login";
     throw new Error("Unauthorized");
   }
+  const data = await parseJsonOrDiagnose(res, url);
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Request failed" }));
-    throw new Error(err.error || "Request failed");
+    throw new Error(data.error || "Request failed");
   }
-  return res.json();
+  return data;
 }
 
 export interface AdminVariant {
@@ -59,12 +78,19 @@ export interface AdminProductInput {
 
 export const adminApi = {
   login: async (key: string): Promise<boolean> => {
-    const res = await fetch(`${BASE}/admin/login`, {
+    const url = `${BASE}/admin/login`;
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key }),
     });
-    return res.ok;
+    if (!res.ok) return false;
+    try {
+      await parseJsonOrDiagnose(res, url);
+      return true;
+    } catch {
+      return false;
+    }
   },
   listProducts: () => req<any[]>(`/admin/products`),
   createProduct: (input: AdminProductInput) =>
@@ -77,7 +103,8 @@ export const adminApi = {
   uploadImage: async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append("image", file);
-    const res = await fetch(`${BASE}/admin/uploads`, {
+    const url = `${BASE}/admin/uploads`;
+    const res = await fetch(url, {
       method: "POST",
       headers: { "x-admin-key": getAdminKey() || "" }, // no Content-Type — browser sets multipart boundary
       body: formData,
@@ -87,11 +114,10 @@ export const adminApi = {
       window.location.href = "/admin/login";
       throw new Error("Unauthorized");
     }
+    const data = await parseJsonOrDiagnose(res, url);
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: "Upload failed" }));
-      throw new Error(err.error || "Upload failed");
+      throw new Error(data.error || "Upload failed");
     }
-    const data = await res.json();
     return `${API_ORIGIN}${data.url}`;
   },
 };
