@@ -11,7 +11,7 @@ export default function Cart() {
   const progressPct = Math.min(100, (cart.subtotal / 10000) * 100);
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <h1 className="text-[20px] tracking-wide text-ink mb-8">Your Bag ({cart.itemCount})</h1>
 
       {cart.items.length === 0 ? (

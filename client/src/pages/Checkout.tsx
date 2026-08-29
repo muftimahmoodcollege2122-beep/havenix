@@ -64,25 +64,31 @@ export default function Checkout() {
   };
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
       {/* Step indicator */}
-      <div className="flex items-center justify-center gap-3 mb-12">
+      <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-8 sm:mb-12 overflow-x-auto">
         {STEPS.map((s, i) => (
-          <div key={s} className="flex items-center gap-3">
+          <div key={s} className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] ${
+              className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-[11px] ${
                 i + 1 <= step ? "bg-espresso text-cream" : "bg-line text-muted"
               }`}
             >
               {i + 1 < step ? <Check size={13} /> : i + 1}
             </div>
-            <span className={`text-[11px] tracking-widest uppercase ${i + 1 === step ? "text-ink" : "text-muted"}`}>{s}</span>
-            {i < STEPS.length - 1 && <div className="w-8 h-px bg-line" />}
+            <span
+              className={`text-[10px] sm:text-[11px] tracking-widest uppercase ${
+                i + 1 === step ? "text-ink" : "hidden sm:inline text-muted"
+              }`}
+            >
+              {s}
+            </span>
+            {i < STEPS.length - 1 && <div className="w-4 sm:w-8 h-px bg-line" />}
           </div>
         ))}
       </div>
 
-      <div className="grid md:grid-cols-[1fr_360px] gap-12">
+      <div className="grid md:grid-cols-[1fr_360px] gap-8 md:gap-12">
         <div>
           {errorMsg && <div className="text-rose text-sm mb-4">{errorMsg}</div>}
 

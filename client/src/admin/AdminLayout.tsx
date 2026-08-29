@@ -19,16 +19,26 @@ export default function AdminLayout() {
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <div className="min-h-screen flex bg-paper">
-      <aside className="w-56 shrink-0 bg-ink text-cream flex flex-col">
-        <div className="px-6 py-6 border-b border-cream/10">
-          <div className="font-serif text-[18px] tracking-[0.15em]">HAVENIX</div>
-          <div className="text-[10px] tracking-[0.3em] text-clay mt-1">ADMIN</div>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-paper">
+      <aside className="w-full lg:w-56 shrink-0 bg-ink text-cream flex flex-col">
+        <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-cream/10 flex items-center justify-between lg:block">
+          <div>
+            <div className="font-serif text-[16px] sm:text-[18px] tracking-[0.15em]">HAVENIX</div>
+            <div className="text-[10px] tracking-[0.3em] text-clay mt-1">ADMIN</div>
+          </div>
+          <div className="flex items-center gap-3 lg:hidden">
+            <a href="/" target="_blank" rel="noreferrer" className="text-cream/70 hover:text-cream" aria-label="View Store">
+              <ExternalLink size={18} />
+            </a>
+            <button onClick={logout} className="text-cream/70 hover:text-cream" aria-label="Log Out">
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
-        <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
+        <nav className="flex lg:flex-col gap-1 px-3 py-2 lg:py-4 overflow-x-auto lg:overflow-visible">
           <Link
             to="/admin/products"
-            className={`flex items-center gap-3 px-3 py-2.5 text-[13px] tracking-wide rounded-sm transition-colors ${
+            className={`shrink-0 flex items-center gap-3 px-3 py-2.5 text-[13px] tracking-wide rounded-sm transition-colors whitespace-nowrap ${
               isActive("/admin/products") ? "bg-cream/10 text-cream" : "text-cream/70 hover:bg-cream/5"
             }`}
           >
@@ -36,7 +46,7 @@ export default function AdminLayout() {
             Products & Stock
           </Link>
         </nav>
-        <div className="px-3 py-4 border-t border-cream/10 flex flex-col gap-1">
+        <div className="hidden lg:flex flex-col px-3 py-4 border-t border-cream/10 gap-1 mt-auto">
           <a
             href="/"
             target="_blank"

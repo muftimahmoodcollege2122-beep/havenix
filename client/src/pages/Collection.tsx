@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import { api } from "../lib/api";
 import type { Product } from "../types";
@@ -22,6 +22,7 @@ export default function Collection() {
   const [subFilter, setSubFilter] = useState<string | null>(null);
   const [colorFilter, setColorFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -48,17 +49,25 @@ export default function Collection() {
   );
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <div className="text-[12px] text-muted mb-4">
         <Link to="/" className="hover:text-clay">Home</Link> / <span className="text-ink capitalize">{category}</span>
       </div>
 
-      <h1 className="font-serif text-[34px] text-ink capitalize mb-2">{category}</h1>
-      <p className="text-muted text-[14px] mb-10">Thoughtfully designed for every chapter of childhood.</p>
+      <h1 className="font-serif text-[26px] sm:text-[34px] text-ink capitalize mb-2">{category}</h1>
+      <p className="text-muted text-[14px] mb-6 sm:mb-10">Thoughtfully designed for every chapter of childhood.</p>
+
+      <button
+        onClick={() => setFiltersOpen((v) => !v)}
+        className="md:hidden flex items-center gap-2 border border-line px-4 py-2.5 text-[12px] tracking-widest uppercase text-ink mb-5"
+      >
+        {filtersOpen ? <X size={14} /> : <SlidersHorizontal size={14} />}
+        {filtersOpen ? "Close Filters" : "Filters"}
+      </button>
 
       <div className="grid md:grid-cols-[220px_1fr] gap-10">
         {/* Filters sidebar */}
-        <aside className="space-y-8">
+        <aside className={`space-y-8 ${filtersOpen ? "block" : "hidden"} md:block`}>
           <FilterGroup title="Category">
             <div className="space-y-2 text-[13px]">
               {availableSubcats.map((s) => (
@@ -128,7 +137,7 @@ export default function Collection() {
           ) : filtered.length === 0 ? (
             <div className="text-muted text-sm py-20 text-center">No products found.</div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-5 gap-y-8">
               {filtered.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}

@@ -65,15 +65,15 @@ export default function AdminProducts() {
   const totalStock = (p: AdminProduct) => p.variants.reduce((sum, v) => sum + v.inventory, 0);
 
   return (
-    <div className="p-8 max-w-[1200px]">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-8 max-w-[1200px]">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-serif text-[24px] text-ink">Products & Stock</h1>
+          <h1 className="font-serif text-[22px] sm:text-[24px] text-ink">Products & Stock</h1>
           <p className="text-muted text-[13px] mt-1">{products.length} products listed</p>
         </div>
         <Link
           to="/admin/products/new"
-          className="flex items-center gap-2 bg-espresso text-cream px-5 py-2.5 text-[13px] tracking-widest uppercase hover:bg-ink transition-colors"
+          className="flex items-center gap-2 bg-espresso text-cream px-4 sm:px-5 py-2.5 text-[13px] tracking-widest uppercase hover:bg-ink transition-colors"
         >
           <Plus size={15} />
           Add Product
@@ -95,8 +95,8 @@ export default function AdminProducts() {
       ) : filtered.length === 0 ? (
         <p className="text-muted text-sm">No products found.</p>
       ) : (
-        <div className="bg-cream border border-line rounded-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-cream border border-line rounded-sm overflow-x-auto">
+          <table className="w-full text-sm min-w-[720px]">
             <thead>
               <tr className="border-b border-line text-left text-[11px] tracking-widest uppercase text-muted">
                 <th className="px-5 py-3 font-medium">Product</th>

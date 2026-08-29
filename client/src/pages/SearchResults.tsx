@@ -19,7 +19,7 @@ export default function SearchResults() {
   }, [q]);
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <h1 className="text-[20px] tracking-wide text-ink mb-1">Search Results</h1>
       <p className="text-muted text-[14px] mb-8">"{q}" · {results.length} results found</p>
 
@@ -34,7 +34,7 @@ export default function SearchResults() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-5 gap-y-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-5 gap-y-8">
           {results.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}

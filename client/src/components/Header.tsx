@@ -28,8 +28,8 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-line">
-      <div className="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-6 flex-1">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3 sm:gap-6 flex-1">
           <button
             className="lg:hidden text-ink"
             onClick={() => setMenuOpen((v) => !v)}
@@ -54,13 +54,13 @@ export default function Header() {
         </div>
 
         <Link to="/" className="flex-1 text-center">
-          <div className="font-serif text-[26px] md:text-[30px] tracking-[0.15em] text-ink leading-none">
+          <div className="font-serif text-[20px] sm:text-[26px] md:text-[30px] tracking-[0.1em] sm:tracking-[0.15em] text-ink leading-none">
             HAVENIX
           </div>
-          <div className="text-[10px] tracking-[0.35em] text-clay mt-1">CHILDREN</div>
+          <div className="text-[9px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-clay mt-1">CHILDREN</div>
         </Link>
 
-        <div className="flex-1 flex items-center justify-end gap-5 text-ink">
+        <div className="flex-1 flex items-center justify-end gap-3 sm:gap-5 text-ink">
           <Link to="/account" aria-label="Account" className="hidden sm:block hover:text-clay transition-colors">
             <User size={19} />
           </Link>

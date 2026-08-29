@@ -128,7 +128,7 @@ export default function AdminProductForm() {
   }
 
   return (
-    <div className="p-8 max-w-[820px]">
+    <div className="p-4 sm:p-8 max-w-[820px]">
       <Link
         to="/admin/products"
         className="inline-flex items-center gap-2 text-[13px] text-muted hover:text-espresso transition-colors mb-6"
@@ -254,48 +254,50 @@ export default function AdminProductForm() {
             </button>
           </div>
           {variants.map((v, i) => (
-            <div key={i} className="grid grid-cols-[1fr_1fr_1fr_1fr_0.8fr_auto] gap-2 items-center">
-              <input
-                value={v.sku}
-                onChange={(e) => updateVariant(i, { sku: e.target.value })}
-                placeholder="SKU"
-                className="input"
-              />
-              <input
-                value={v.color}
-                onChange={(e) => updateVariant(i, { color: e.target.value })}
-                placeholder="Color"
-                className="input"
-              />
-              <input
-                type="color"
-                value={v.colorHex}
-                onChange={(e) => updateVariant(i, { colorHex: e.target.value })}
-                className="h-[42px] w-full border border-line rounded-sm"
-              />
-              <input
-                value={v.size}
-                onChange={(e) => updateVariant(i, { size: e.target.value })}
-                placeholder="Size"
-                className="input"
-              />
-              <input
-                type="number"
-                min={0}
-                value={v.inventory}
-                onChange={(e) => updateVariant(i, { inventory: Number(e.target.value) })}
-                placeholder="Stock"
-                className="input"
-              />
-              {variants.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setVariants((prev) => prev.filter((_, idx) => idx !== i))}
-                  className="text-muted hover:text-rose transition-colors px-2"
-                >
-                  <Trash2 size={15} />
-                </button>
-              )}
+            <div key={i} className="overflow-x-auto">
+              <div className="grid grid-cols-[1fr_1fr_1fr_1fr_0.8fr_auto] gap-2 items-center min-w-[560px]">
+                <input
+                  value={v.sku}
+                  onChange={(e) => updateVariant(i, { sku: e.target.value })}
+                  placeholder="SKU"
+                  className="input"
+                />
+                <input
+                  value={v.color}
+                  onChange={(e) => updateVariant(i, { color: e.target.value })}
+                  placeholder="Color"
+                  className="input"
+                />
+                <input
+                  type="color"
+                  value={v.colorHex}
+                  onChange={(e) => updateVariant(i, { colorHex: e.target.value })}
+                  className="h-[42px] w-full border border-line rounded-sm"
+                />
+                <input
+                  value={v.size}
+                  onChange={(e) => updateVariant(i, { size: e.target.value })}
+                  placeholder="Size"
+                  className="input"
+                />
+                <input
+                  type="number"
+                  min={0}
+                  value={v.inventory}
+                  onChange={(e) => updateVariant(i, { inventory: Number(e.target.value) })}
+                  placeholder="Stock"
+                  className="input"
+                />
+                {variants.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setVariants((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="text-muted hover:text-rose transition-colors px-2"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </section>

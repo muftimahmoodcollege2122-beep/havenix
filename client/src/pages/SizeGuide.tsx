@@ -22,17 +22,17 @@ export default function SizeGuide() {
   };
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <h1 className="text-[20px] tracking-wide text-ink mb-8">Size Guide</h1>
 
-      <div className="grid md:grid-cols-[1fr_360px] gap-12">
+      <div className="grid md:grid-cols-[1fr_360px] gap-8 md:gap-12">
         <div>
-          <div className="flex gap-6 border-b border-line mb-6">
+          <div className="flex gap-6 border-b border-line mb-6 overflow-x-auto">
             {(["girls", "boys", "baby"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`pb-3 text-[13px] tracking-widest uppercase border-b-2 -mb-px transition-colors ${
+                className={`pb-3 shrink-0 text-[13px] tracking-widest uppercase border-b-2 -mb-px transition-colors ${
                   tab === t ? "border-espresso text-ink" : "border-transparent text-muted"
                 }`}
               >
@@ -42,26 +42,28 @@ export default function SizeGuide() {
           </div>
 
           {guides ? (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="text-left text-muted border-b border-line">
-                  <th className="py-3 font-normal">Age</th>
-                  <th className="py-3 font-normal">Height (cm)</th>
-                  <th className="py-3 font-normal">Chest (cm)</th>
-                  <th className="py-3 font-normal">Waist (cm)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {guides[tab].map((row: any) => (
-                  <tr key={row.size} className="border-b border-line">
-                    <td className="py-3 text-ink">{row.ageRange}</td>
-                    <td className="py-3 text-muted">{row.heightCm}</td>
-                    <td className="py-3 text-muted">{row.chestCm}</td>
-                    <td className="py-3 text-muted">{row.waistCm}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-[13px] min-w-[420px]">
+                <thead>
+                  <tr className="text-left text-muted border-b border-line">
+                    <th className="py-3 font-normal">Age</th>
+                    <th className="py-3 font-normal">Height (cm)</th>
+                    <th className="py-3 font-normal">Chest (cm)</th>
+                    <th className="py-3 font-normal">Waist (cm)</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {guides[tab].map((row: any) => (
+                    <tr key={row.size} className="border-b border-line">
+                      <td className="py-3 text-ink">{row.ageRange}</td>
+                      <td className="py-3 text-muted">{row.heightCm}</td>
+                      <td className="py-3 text-muted">{row.chestCm}</td>
+                      <td className="py-3 text-muted">{row.waistCm}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div className="text-muted text-sm">Loading...</div>
           )}

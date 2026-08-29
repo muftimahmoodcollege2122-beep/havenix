@@ -43,10 +43,10 @@ export default function Account() {
     .join("");
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8">
-      <div className="grid md:grid-cols-[240px_1fr] gap-10">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="grid md:grid-cols-[240px_1fr] gap-8 md:gap-10">
         <aside>
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-3 mb-6 md:mb-8">
             <div className="w-11 h-11 rounded-full bg-blush flex items-center justify-center text-ink font-serif text-[15px]">
               {initials}
             </div>
@@ -55,12 +55,12 @@ export default function Account() {
               <div className="text-[14px] text-ink">{data.customer.name.split(" ")[0]}</div>
             </div>
           </div>
-          <nav className="space-y-1">
+          <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
             {NAV.map((n) => (
               <button
                 key={n.key}
                 onClick={() => setActive(n.key)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-[13px] rounded transition-colors ${
+                className={`shrink-0 flex items-center gap-3 px-3 py-2.5 text-[13px] rounded transition-colors whitespace-nowrap ${
                   active === n.key ? "bg-espresso text-cream" : "text-ink/80 hover:bg-paper"
                 }`}
               >
@@ -68,7 +68,7 @@ export default function Account() {
                 {n.label}
               </button>
             ))}
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] text-ink/60 hover:bg-paper rounded mt-4">
+            <button className="hidden md:flex w-full items-center gap-3 px-3 py-2.5 text-[13px] text-ink/60 hover:bg-paper rounded mt-4">
               <LogOut size={15} />
               Logout
             </button>
@@ -94,7 +94,7 @@ function Dashboard({ data }: { data: any }) {
       <h1 className="text-[20px] tracking-wide text-ink mb-1">{data.customer.name}</h1>
       <p className="text-muted text-[13px] mb-8">{data.customer.email}</p>
 
-      <div className="grid grid-cols-3 gap-5 mb-10">
+      <div className="grid grid-cols-3 gap-3 sm:gap-5 mb-10">
         <Stat label="Total Orders" value={data.stats.totalOrders} />
         <Stat label="Wishlist Items" value={data.stats.wishlistItems} />
         <Stat label="Active Returns" value={data.stats.activeReturns} />
@@ -106,7 +106,7 @@ function Dashboard({ data }: { data: any }) {
       </div>
       <div className="border border-line rounded-sm divide-y divide-line mb-10">
         {data.orders.map((o: Order) => (
-          <Link key={o.id} to={`/orders/${o.id}`} className="flex items-center justify-between px-5 py-4 hover:bg-paper transition-colors">
+          <Link key={o.id} to={`/orders/${o.id}`} className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-5 py-4 hover:bg-paper transition-colors">
             <div>
               <div className="text-[13px] text-ink">{o.id}</div>
               <div className="text-[11px] text-muted">{o.placedOn}</div>
@@ -143,9 +143,9 @@ function Dashboard({ data }: { data: any }) {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border border-line rounded-sm px-5 py-4">
-      <div className="text-[22px] font-serif text-ink">{String(value).padStart(2, "0")}</div>
-      <div className="text-[11px] text-muted mt-1">{label}</div>
+    <div className="border border-line rounded-sm px-3 sm:px-5 py-3 sm:py-4">
+      <div className="text-[18px] sm:text-[22px] font-serif text-ink">{String(value).padStart(2, "0")}</div>
+      <div className="text-[10px] sm:text-[11px] text-muted mt-1">{label}</div>
     </div>
   );
 }
@@ -156,7 +156,7 @@ function OrdersList({ orders }: { orders: Order[] }) {
       <h1 className="text-[20px] tracking-wide text-ink mb-6">Orders</h1>
       <div className="border border-line rounded-sm divide-y divide-line">
         {orders.map((o) => (
-          <Link key={o.id} to={`/orders/${o.id}`} className="flex items-center justify-between px-5 py-4 hover:bg-paper transition-colors">
+          <Link key={o.id} to={`/orders/${o.id}`} className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-5 py-4 hover:bg-paper transition-colors">
             <div>
               <div className="text-[13px] text-ink">{o.id}</div>
               <div className="text-[11px] text-muted">{o.placedOn} · {o.items.length} item(s)</div>

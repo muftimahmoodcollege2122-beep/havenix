@@ -52,22 +52,22 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <div className="text-[12px] text-muted mb-6">
         <Link to="/" className="hover:text-clay">Home</Link> /{" "}
         <Link to={`/collections/${product.category}`} className="hover:text-clay capitalize">{product.category}</Link> /{" "}
         <span className="text-ink">{product.name}</span>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-12">
+      <div className="grid md:grid-cols-2 gap-8 md:gap-12">
         {/* Gallery */}
-        <div className="flex gap-4">
-          <div className="flex flex-col gap-3">
+        <div className="flex flex-col-reverse md:flex-row gap-4">
+          <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
             {product.images.map((img, i) => (
               <button
                 key={i}
                 onClick={() => setActiveImage(i)}
-                className={`w-16 h-20 overflow-hidden border ${activeImage === i ? "border-clay" : "border-line"}`}
+                className={`w-16 h-20 shrink-0 overflow-hidden border ${activeImage === i ? "border-clay" : "border-line"}`}
               >
                 <img src={img} alt="" className="w-full h-full object-cover" />
               </button>
@@ -87,7 +87,7 @@ export default function ProductPage() {
 
         {/* Info */}
         <div>
-          <h1 className="font-serif text-[30px] text-ink mb-2">{product.name}</h1>
+          <h1 className="font-serif text-[26px] sm:text-[30px] text-ink mb-2">{product.name}</h1>
           <div className="text-[20px] text-ink mb-3">PKR {product.price.toLocaleString()}</div>
           <div className="flex items-center gap-2 mb-6">
             {[...Array(5)].map((_, i) => (
@@ -210,7 +210,7 @@ export default function ProductPage() {
       {related.length > 0 && (
         <div className="mt-20">
           <h2 className="text-[15px] tracking-widest uppercase text-ink mb-8">You May Also Like</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
