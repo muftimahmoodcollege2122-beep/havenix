@@ -6,6 +6,42 @@ import type { AdminProductInput, AdminVariant } from "./adminApi";
 
 const CATEGORIES = ["women", "men", "kids", "accessories"];
 
+const SUBCATEGORIES = ["Dresses", "Tops", "Bottoms", "Sets", "Knitwear", "Outerwear", "Sleepwear"];
+
+const MATERIALS = [
+  "Cotton",
+  "Linen",
+  "Silk",
+  "Wool",
+  "Cashmere",
+  "Denim",
+  "Leather",
+  "Polyester",
+  "Viscose",
+  "Cotton Blend",
+  "Knit Blend",
+];
+
+const SIZE_RANGES = ["XS-XL", "XS-L", "S-XL", "2Y-7Y", "0-24M", "One Size"];
+
+const ADULT_SIZES = ["XS", "S", "M", "L", "XL"];
+const KIDS_SIZES = ["2Y", "3Y", "4Y", "5Y", "6Y", "7Y"];
+const ACCESSORY_SIZES = ["One Size"];
+
+const COLORS = [
+  { name: "Blush", hex: "#EFD3CE" },
+  { name: "Cream", hex: "#F3ECDD" },
+  { name: "Rose", hex: "#D98E8A" },
+  { name: "Sage", hex: "#B7BFA8" },
+  { name: "Camel", hex: "#C69C6D" },
+  { name: "Black", hex: "#2A211C" },
+  { name: "White", hex: "#FBF7F2" },
+  { name: "Navy", hex: "#2E3A4F" },
+  { name: "Tan", hex: "#D8C6AE" },
+];
+
+const OTHER = "Other (custom)";
+
 const emptyVariant = (): AdminVariant => ({
   sku: "",
   color: "",
@@ -36,6 +72,12 @@ export default function AdminProductForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const [subCategoryCustom, setSubCategoryCustom] = useState(false);
+  const [materialCustom, setMaterialCustom] = useState(false);
+
+  const variantSizeOptions =
+    category === "kids" ? KIDS_SIZES : category === "accessories" ? ACCESSORY_SIZES : ADULT_SIZES;
+
   useEffect(() => {
     if (!isEdit) return;
     adminApi.listProducts().then((all: any[]) => {
@@ -48,11 +90,13 @@ export default function AdminProductForm() {
       setName(p.name);
       setCategory(p.category);
       setSubCategory(p.subCategory);
+      setSubCategoryCustom(!SUBCATEGORIES.includes(p.subCategory));
       setPrice(String(p.price));
       setCompareAtPrice(p.compareAtPrice ? String(p.compareAtPrice) : "");
       setIsNew(p.isNew);
       setDescription(p.description || "");
       setMaterial(p.material || "");
+      setMaterialCustom(Boolean(p.material) && !MATERIALS.includes(p.material));
       setCare(p.care || "");
       setSizeRange(p.sizeRange || "");
       setImages(p.images.length ? p.images : [""]);
@@ -152,8 +196,50 @@ export default function AdminProductForm() {
             <Field label="Product Name">
               <input value={name} onChange={(e) => setName(e.target.value)} className="input" />
             </Field>
-            <Field label="Sub-category (e.g. Dresses)">
-              <input value={subCategory} onChange={(e) => setSubCategory(e.target.value)} className="input" />
+            <Field label="Sub-category">
+              {subCategoryCustom ? (
+                <div className="flex gap-2">
+                  <input
+                    value={subCategory}
+                    onChange={(e) => setSubCategory(e.target.value)}
+                    placeholder="Custom sub-category"
+                    className="input flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubCategoryCustom(false);
+                      setSubCategory(SUBCATEGORIES[0]);
+                    }}
+                    className="text-[11px] text-clay hover:text-espresso whitespace-nowrap"
+                  >
+                    Use list
+                  </button>
+                </div>
+              ) : (
+                <select
+                  value={subCategory}
+                  onChange={(e) => {
+                    if (e.target.value === OTHER) {
+                      setSubCategoryCustom(true);
+                      setSubCategory("");
+                    } else {
+                      setSubCategory(e.target.value);
+                    }
+                  }}
+                  className="input"
+                >
+                  <option value="" disabled>
+                    Select sub-category
+                  </option>
+                  {SUBCATEGORIES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                  <option value={OTHER}>{OTHER}</option>
+                </select>
+              )}
             </Field>
             <Field label="Category">
               <select value={category} onChange={(e) => setCategory(e.target.value)} className="input capitalize">
@@ -164,8 +250,17 @@ export default function AdminProductForm() {
                 ))}
               </select>
             </Field>
-            <Field label="Size Range (e.g. XS-XL)">
-              <input value={sizeRange} onChange={(e) => setSizeRange(e.target.value)} className="input" />
+            <Field label="Size Range">
+              <select value={sizeRange} onChange={(e) => setSizeRange(e.target.value)} className="input">
+                <option value="" disabled>
+                  Select size range
+                </option>
+                {SIZE_RANGES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="Price (PKR)">
               <input
@@ -200,7 +295,49 @@ export default function AdminProductForm() {
           </Field>
           <div className="grid md:grid-cols-2 gap-4">
             <Field label="Material">
-              <input value={material} onChange={(e) => setMaterial(e.target.value)} className="input" />
+              {materialCustom ? (
+                <div className="flex gap-2">
+                  <input
+                    value={material}
+                    onChange={(e) => setMaterial(e.target.value)}
+                    placeholder="Custom material"
+                    className="input flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMaterialCustom(false);
+                      setMaterial(MATERIALS[0]);
+                    }}
+                    className="text-[11px] text-clay hover:text-espresso whitespace-nowrap"
+                  >
+                    Use list
+                  </button>
+                </div>
+              ) : (
+                <select
+                  value={material}
+                  onChange={(e) => {
+                    if (e.target.value === OTHER) {
+                      setMaterialCustom(true);
+                      setMaterial("");
+                    } else {
+                      setMaterial(e.target.value);
+                    }
+                  }}
+                  className="input"
+                >
+                  <option value="" disabled>
+                    Select material
+                  </option>
+                  {MATERIALS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                  <option value={OTHER}>{OTHER}</option>
+                </select>
+              )}
             </Field>
             <Field label="Care Instructions">
               <input value={care} onChange={(e) => setCare(e.target.value)} className="input" />
@@ -253,53 +390,106 @@ export default function AdminProductForm() {
               <Plus size={13} /> Add Variant
             </button>
           </div>
-          {variants.map((v, i) => (
-            <div key={i} className="overflow-x-auto">
-              <div className="grid grid-cols-[1fr_1fr_1fr_1fr_0.8fr_auto] gap-2 items-center min-w-[560px]">
-                <input
-                  value={v.sku}
-                  onChange={(e) => updateVariant(i, { sku: e.target.value })}
-                  placeholder="SKU"
-                  className="input"
-                />
-                <input
-                  value={v.color}
-                  onChange={(e) => updateVariant(i, { color: e.target.value })}
-                  placeholder="Color"
-                  className="input"
-                />
-                <input
-                  type="color"
-                  value={v.colorHex}
-                  onChange={(e) => updateVariant(i, { colorHex: e.target.value })}
-                  className="h-[42px] w-full border border-line rounded-sm"
-                />
-                <input
-                  value={v.size}
-                  onChange={(e) => updateVariant(i, { size: e.target.value })}
-                  placeholder="Size"
-                  className="input"
-                />
-                <input
-                  type="number"
-                  min={0}
-                  value={v.inventory}
-                  onChange={(e) => updateVariant(i, { inventory: Number(e.target.value) })}
-                  placeholder="Stock"
-                  className="input"
-                />
-                {variants.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => setVariants((prev) => prev.filter((_, idx) => idx !== i))}
-                    className="text-muted hover:text-rose transition-colors px-2"
+          {variants.map((v, i) => {
+            const colorIsCustom = v.color !== "" && !COLORS.some((c) => c.name === v.color);
+            const sizeIsCustom = v.size !== "" && !variantSizeOptions.includes(v.size);
+            return (
+              <div key={i} className="overflow-x-auto">
+                <div className="grid grid-cols-[1fr_1fr_1fr_1fr_0.8fr_auto] gap-2 items-center min-w-[560px]">
+                  <input
+                    value={v.sku}
+                    onChange={(e) => updateVariant(i, { sku: e.target.value })}
+                    placeholder="SKU"
+                    className="input"
+                  />
+                  <select
+                    value={colorIsCustom ? OTHER : v.color}
+                    onChange={(e) => {
+                      if (e.target.value === OTHER) {
+                        updateVariant(i, { color: " " }); // marks custom mode; trimmed before submit
+                      } else {
+                        const preset = COLORS.find((c) => c.name === e.target.value);
+                        updateVariant(i, { color: e.target.value, colorHex: preset?.hex || v.colorHex });
+                      }
+                    }}
+                    className="input"
                   >
-                    <Trash2 size={15} />
-                  </button>
+                    <option value="" disabled>
+                      Color
+                    </option>
+                    {COLORS.map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                    <option value={OTHER}>{OTHER}</option>
+                  </select>
+                  <input
+                    type="color"
+                    value={v.colorHex}
+                    onChange={(e) => updateVariant(i, { colorHex: e.target.value })}
+                    className="h-[42px] w-full border border-line rounded-sm"
+                  />
+                  <select
+                    value={sizeIsCustom ? OTHER : v.size}
+                    onChange={(e) =>
+                      updateVariant(i, { size: e.target.value === OTHER ? " " : e.target.value })
+                    }
+                    className="input"
+                  >
+                    <option value="" disabled>
+                      Size
+                    </option>
+                    {variantSizeOptions.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                    <option value={OTHER}>{OTHER}</option>
+                  </select>
+                  <input
+                    type="number"
+                    min={0}
+                    value={v.inventory}
+                    onChange={(e) => updateVariant(i, { inventory: Number(e.target.value) })}
+                    placeholder="Stock"
+                    className="input"
+                  />
+                  {variants.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setVariants((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="text-muted hover:text-rose transition-colors px-2"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
+                </div>
+                {(colorIsCustom || sizeIsCustom) && (
+                  <div className="flex gap-2 mt-2 min-w-[560px]">
+                    {colorIsCustom && (
+                      <input
+                        value={v.color.trim()}
+                        onChange={(e) => updateVariant(i, { color: e.target.value })}
+                        placeholder="Custom color name"
+                        className="input flex-1"
+                        autoFocus
+                      />
+                    )}
+                    {sizeIsCustom && (
+                      <input
+                        value={v.size.trim()}
+                        onChange={(e) => updateVariant(i, { size: e.target.value })}
+                        placeholder="Custom size"
+                        className="input flex-1"
+                        autoFocus
+                      />
+                    )}
+                  </div>
                 )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
 
         <div className="flex items-center gap-4">
