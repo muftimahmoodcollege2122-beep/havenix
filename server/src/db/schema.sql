@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   size TEXT NOT NULL,
   price INT NOT NULL,
   qty INT NOT NULL,
-  image TEXT NOT NULL
+  image TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
