@@ -73,7 +73,21 @@ button { font-family: inherit; }
 
 .hero-title-anim { animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
+@keyframes logoReveal {
+  0% { opacity: 0; letter-spacing: 0.15em; transform: scale(0.96); }
+  100% { opacity: 1; letter-spacing: 0.55em; transform: scale(1); }
+}
+@keyframes lineGrow {
+  from { width: 0; opacity: 0; }
+  to { width: 3.5rem; opacity: 1; }
+}
+.intro-logo { animation: logoReveal 1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.intro-logo-line { animation: lineGrow 0.7s ease-out 0.7s both; }
+.pre-reveal { opacity: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .float-shape, .marquee-track, .hero-title-anim { animation: none !important; }
+  .intro-logo, .intro-logo-line { animation: none !important; opacity: 1 !important; }
+  .pre-reveal { opacity: 1 !important; }
 }
