@@ -1,4 +1,5 @@
-const BASE = `${import.meta.env.VITE_API_URL || ""}/api`;
+const API_ORIGIN = import.meta.env.VITE_API_URL || "";
+const BASE = `${API_ORIGIN}/api`;
 const STORAGE_KEY = "havenix_admin_key";
 
 export function getAdminKey(): string | null {
@@ -73,4 +74,24 @@ export const adminApi = {
   deleteProduct: (id: string) => req(`/admin/products/${id}`, { method: "DELETE" }),
   updateInventory: (sku: string, inventory: number) =>
     req(`/admin/variants/${sku}/inventory`, { method: "PATCH", body: JSON.stringify({ inventory }) }),
+  uploadImage: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const res = await fetch(`${BASE}/admin/uploads`, {
+      method: "POST",
+      headers: { "x-admin-key": getAdminKey() || "" }, // no Content-Type — browser sets multipart boundary
+      body: formData,
+    });
+    if (res.status === 401) {
+      clearAdminKey();
+      window.location.href = "/admin/login";
+      throw new Error("Unauthorized");
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Upload failed" }));
+      throw new Error(err.error || "Upload failed");
+    }
+    const data = await res.json();
+    return `${API_ORIGIN}${data.url}`;
+  },
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Upload, X } from "lucide-react";
 import { adminApi } from "./adminApi";
 import type { AdminProductInput, AdminVariant } from "./adminApi";
 
@@ -42,6 +42,8 @@ const COLORS = [
 
 const OTHER = "Other (custom)";
 
+const MAX_IMAGES = 7;
+
 const emptyVariant = (): AdminVariant => ({
   sku: "",
   color: "",
@@ -65,7 +67,10 @@ export default function AdminProductForm() {
   const [material, setMaterial] = useState("");
   const [care, setCare] = useState("");
   const [sizeRange, setSizeRange] = useState("");
-  const [images, setImages] = useState<string[]>([""]);
+  const [images, setImages] = useState<string[]>([]);
+  const [urlInput, setUrlInput] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [variants, setVariants] = useState<AdminVariant[]>([emptyVariant()]);
 
   const [loading, setLoading] = useState(isEdit);
@@ -99,7 +104,7 @@ export default function AdminProductForm() {
       setMaterialCustom(Boolean(p.material) && !MATERIALS.includes(p.material));
       setCare(p.care || "");
       setSizeRange(p.sizeRange || "");
-      setImages(p.images.length ? p.images : [""]);
+      setImages(p.images || []);
       setVariants(
         p.variants.length
           ? p.variants.map((v: any) => ({
@@ -119,8 +124,33 @@ export default function AdminProductForm() {
     setVariants((prev) => prev.map((v, idx) => (idx === i ? { ...v, ...patch } : v)));
   };
 
-  const updateImage = (i: number, url: string) => {
-    setImages((prev) => prev.map((img, idx) => (idx === i ? url : img)));
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = ""; // allow re-selecting the same file later
+    if (files.length === 0) return;
+
+    setUploadError("");
+    const remaining = MAX_IMAGES - images.filter((i) => i.trim()).length;
+    if (remaining <= 0) {
+      setUploadError(`You can only add up to ${MAX_IMAGES} images.`);
+      return;
+    }
+    const toUpload = files.slice(0, remaining);
+    if (files.length > remaining) {
+      setUploadError(`Only ${remaining} more image(s) allowed — uploaded the first ${remaining}.`);
+    }
+
+    setUploading(true);
+    try {
+      for (const file of toUpload) {
+        const url = await adminApi.uploadImage(file);
+        setImages((prev) => [...prev, url]);
+      }
+    } catch (err: any) {
+      setUploadError(err.message || "Upload failed.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -348,34 +378,80 @@ export default function AdminProductForm() {
         {/* Images */}
         <section className="bg-cream border border-line rounded-sm p-6 space-y-3">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="text-[13px] tracking-widest uppercase text-ink">Images (URLs)</h2>
-            <button
-              type="button"
-              onClick={() => setImages((prev) => [...prev, ""])}
-              className="text-clay text-[12px] flex items-center gap-1 hover:text-espresso transition-colors"
-            >
-              <Plus size={13} /> Add Image
-            </button>
+            <h2 className="text-[13px] tracking-widest uppercase text-ink">
+              Images ({images.filter((i) => i.trim()).length}/{MAX_IMAGES})
+            </h2>
+            {uploadError && <span className="text-[12px] text-rose">{uploadError}</span>}
           </div>
-          {images.map((img, i) => (
-            <div key={i} className="flex gap-2">
+
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {images
+              .filter((i) => i.trim())
+              .map((img, i) => (
+                <div key={img + i} className="relative aspect-square border border-line rounded-sm overflow-hidden group">
+                  <img src={img} alt={`Product ${i + 1}`} className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImages((prev) => prev.filter((x) => x !== img))}
+                    className="absolute top-1 right-1 bg-ink/70 text-cream rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Remove image"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ))}
+
+            {images.filter((i) => i.trim()).length < MAX_IMAGES && (
+              <label
+                className={`aspect-square border border-dashed border-line rounded-sm flex flex-col items-center justify-center gap-1.5 text-muted cursor-pointer hover:border-clay hover:text-clay transition-colors ${
+                  uploading ? "opacity-50 pointer-events-none" : ""
+                }`}
+              >
+                {uploading ? (
+                  <span className="text-[11px]">Uploading...</span>
+                ) : (
+                  <>
+                    <Upload size={18} />
+                    <span className="text-[11px] text-center px-1">Upload</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={handleFileSelect}
+                />
+              </label>
+            )}
+          </div>
+
+          <p className="text-[11px] text-muted">Up to {MAX_IMAGES} images, 8MB max each.</p>
+
+          <details className="text-[12px]">
+            <summary className="text-clay cursor-pointer select-none">Or add image by URL</summary>
+            <div className="flex gap-2 mt-2">
               <input
-                value={img}
-                onChange={(e) => updateImage(i, e.target.value)}
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
                 placeholder="https://..."
                 className="input flex-1"
               />
-              {images.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setImages((prev) => prev.filter((_, idx) => idx !== i))}
-                  className="text-muted hover:text-rose transition-colors px-2"
-                >
-                  <Trash2 size={15} />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (urlInput.trim() && images.filter((i) => i.trim()).length < MAX_IMAGES) {
+                    setImages((prev) => [...prev.filter((i) => i.trim()), urlInput.trim()]);
+                    setUrlInput("");
+                  }
+                }}
+                className="text-clay hover:text-espresso transition-colors px-3 border border-line"
+              >
+                Add
+              </button>
             </div>
-          ))}
+          </details>
         </section>
 
         {/* Variants */}

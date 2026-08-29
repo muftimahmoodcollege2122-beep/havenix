@@ -7,6 +7,7 @@ import checkoutRoutes from "./routes/checkout";
 import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
 import paymentsRoutes from "./routes/payments";
+import uploadsRoutes from "./routes/uploads";
 import { pool } from "./db/pool";
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/api", checkoutRoutes);
 app.use("/api", authRoutes);
 app.use("/api", adminRoutes);
 app.use("/api", paymentsRoutes);
+app.use("/api", uploadsRoutes);
 
 app.get("/api/health", async (_req, res) => {
   try {
@@ -33,6 +35,17 @@ app.get("/api/health", async (_req, res) => {
   } catch (err) {
     res.status(503).json({ ok: false, db: "unreachable" });
   }
+});
+
+// Catches multer (file upload) errors and any other thrown middleware errors
+// so the client always gets JSON back instead of a raw HTML error page.
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(err);
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ error: "Image is too large (8MB max)." });
+  }
+  const status = err.status || (err.message?.includes("Only image files") ? 400 : 500);
+  res.status(status).json({ error: err.message || "Something went wrong" });
 });
 
 const PORT = process.env.PORT || 4000;
