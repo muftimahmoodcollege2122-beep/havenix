@@ -1,0 +1,94 @@
+import { Link } from "react-router-dom";
+import { ShieldCheck, RefreshCw, Award, Globe, AtSign, Share2, MapPin, Music2 } from "lucide-react";
+
+export default function Footer() {
+  return (
+    <footer className="bg-espresso text-cream/90 mt-24">
+      <div className="max-w-[1440px] mx-auto px-6 py-14 grid grid-cols-2 md:grid-cols-5 gap-10">
+        <div className="col-span-2 md:col-span-1">
+          <div className="font-serif text-[22px] tracking-[0.15em]">HAVENIX</div>
+          <div className="text-[10px] tracking-[0.35em] text-clay mt-1 mb-4">CHILDREN</div>
+          <p className="text-xs text-cream/60 leading-relaxed">
+            Timeless clothing for little lives. Crafted with love. Designed to last.
+          </p>
+          <div className="flex gap-3 mt-5 text-cream/70">
+            <AtSign size={16} />
+            <Share2 size={16} />
+            <MapPin size={16} />
+            <Music2 size={16} />
+          </div>
+        </div>
+
+        <FooterCol title="Shop" links={[
+          { label: "New In", to: "/new-in" },
+          { label: "Girls", to: "/collections/girls" },
+          { label: "Boys", to: "/collections/boys" },
+          { label: "Baby", to: "/collections/baby" },
+          { label: "Sale", to: "/sale" },
+        ]} />
+        <FooterCol title="Customer Care" links={[
+          { label: "Shipping & Delivery", to: "/" },
+          { label: "Returns & Exchanges", to: "/" },
+          { label: "Size Guide", to: "/size-guide" },
+          { label: "FAQ", to: "/" },
+          { label: "Track Order", to: "/orders/HV-10482" },
+        ]} />
+        <FooterCol title="About" links={[
+          { label: "Our Story", to: "/" },
+          { label: "Sustainability", to: "/" },
+          { label: "Journal", to: "/" },
+          { label: "Careers", to: "/" },
+          { label: "Contact Us", to: "/" },
+        ]} />
+        <FooterCol title="Info" links={[
+          { label: "Collections", to: "/" },
+          { label: "Gift Cards", to: "/" },
+          { label: "Privacy Policy", to: "/" },
+          { label: "Terms & Conditions", to: "/" },
+        ]} />
+      </div>
+
+      <div className="border-t border-cream/10">
+        <div className="max-w-[1440px] mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-xs text-cream/70">
+          <Badge icon={<ShieldCheck size={16} />} title="Secure Payment" sub="100% Protected" />
+          <Badge icon={<RefreshCw size={16} />} title="Easy Returns" sub="15 Days Return" />
+          <Badge icon={<Award size={16} />} title="Quality Assured" sub="Premium Fabrics" />
+          <Badge icon={<Globe size={16} />} title="Worldwide Shipping" sub="Fast & Reliable" />
+        </div>
+      </div>
+
+      <div className="border-t border-cream/10 text-center text-[11px] text-cream/50 py-5">
+        © 2026 Havenix Children. All rights reserved.
+      </div>
+    </footer>
+  );
+}
+
+function FooterCol({ title, links }: { title: string; links: { label: string; to: string }[] }) {
+  return (
+    <div>
+      <div className="text-[11px] tracking-widest uppercase text-cream/50 mb-4">{title}</div>
+      <ul className="space-y-2.5 text-[13px] text-cream/80">
+        {links.map((l) => (
+          <li key={l.label}>
+            <Link to={l.to} className="hover:text-clay transition-colors">
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Badge({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-clay">{icon}</span>
+      <div>
+        <div className="text-cream font-medium">{title}</div>
+        <div className="text-cream/50">{sub}</div>
+      </div>
+    </div>
+  );
+}
