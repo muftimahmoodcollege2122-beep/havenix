@@ -25,7 +25,7 @@ export interface ProductRow {
   }[];
 }
 
-const PRODUCT_SELECT = `
+export const PRODUCT_SELECT = `
   SELECT
     p.id, p.slug, p.name, p.category, p.sub_category AS "subCategory",
     p.price, p.compare_at_price AS "compareAtPrice", p.is_new AS "isNew",

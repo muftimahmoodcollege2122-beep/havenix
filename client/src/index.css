@@ -90,6 +90,19 @@ button { font-family: inherit; }
   will-change: transform;
 }
 
+.input {
+  width: 100%;
+  background: #FBF7F2;
+  border: 1px solid #E7DFD4;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.input:focus {
+  border-color: #C98F7B;
+}
+
 .link-underline {
   position: relative;
   display: inline-block;

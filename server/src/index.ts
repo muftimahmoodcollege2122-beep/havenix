@@ -4,6 +4,7 @@ import catalogRoutes from "./routes/catalog";
 import cartRoutes from "./routes/cart";
 import accountRoutes from "./routes/account";
 import checkoutRoutes from "./routes/checkout";
+import adminRoutes from "./routes/admin";
 import { pool } from "./db/pool";
 
 const app = express();
@@ -14,6 +15,7 @@ app.use("/api", catalogRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api", accountRoutes);
 app.use("/api", checkoutRoutes);
+app.use("/api", adminRoutes);
 
 app.get("/api/health", async (_req, res) => {
   try {
