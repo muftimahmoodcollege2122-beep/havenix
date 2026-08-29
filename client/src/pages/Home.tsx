@@ -192,7 +192,7 @@ export default function Home() {
             <Reveal key={i} delay={i * 60} className="aspect-square overflow-hidden">
               <ProductImage
                 alt=""
-                className="w-full h-full object-cover transition-all duration-500 hover:opacity-80 hover:scale-105"
+                className="w-full h-full object-cover transition-[opacity,transform] duration-500 hover:opacity-80 hover:scale-105"
               />
             </Reveal>
           ))}

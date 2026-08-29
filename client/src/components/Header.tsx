@@ -29,7 +29,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-line">
+    <header className="sticky top-0 z-40 bg-cream/98 border-b border-line">
       <div className="max-w-[1440px] mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-6 flex-1">
           <button
