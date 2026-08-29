@@ -16,9 +16,9 @@ router.get("/account", async (_req, res) => {
     if (!customerId) return res.status(404).json({ error: "No customer found" });
 
     const { rows: custRows } = await pool.query("SELECT id, name, email FROM customers WHERE id = $1", [customerId]);
-    const { rows: children } = await pool.query(
-      `SELECT id, name, age_years AS "ageYears", height_cm AS "heightCm", weight_kg AS "weightKg"
-       FROM children WHERE customer_id = $1 ORDER BY created_at`,
+    const { rows: familyProfiles } = await pool.query(
+      `SELECT id, name, department, age_years AS "ageYears", height_cm AS "heightCm", weight_kg AS "weightKg"
+       FROM family_profiles WHERE customer_id = $1 ORDER BY created_at`,
       [customerId]
     );
     const { rows: orders } = await pool.query(
@@ -37,7 +37,7 @@ router.get("/account", async (_req, res) => {
 
     res.json({
       customer: custRows[0],
-      childProfiles: children,
+      familyProfiles,
       orders,
       stats: {
         totalOrders: orders.length,
@@ -79,8 +79,11 @@ router.get("/size-guide", (_req, res) => {
 });
 
 router.post("/size-recommendation", (req, res) => {
-  const { heightCm, ageYears } = req.body as { heightCm: number; ageYears: number };
-  res.json(recommendSize(heightCm, ageYears));
+  const { heightCm, department } = req.body as {
+    heightCm: number;
+    department?: "women" | "men" | "kids";
+  };
+  res.json(recommendSize(heightCm, department));
 });
 
 export default router;

@@ -4,9 +4,9 @@ export const customer = {
   email: "haniya.ilhan@email.com",
 };
 
-export const childProfiles = [
-  { id: "ch1", name: "Amna", ageYears: 5, heightCm: 108, weightKg: 18 },
-  { id: "ch2", name: "Hamza", ageYears: 3, heightCm: 96, weightKg: 15 },
+export const familyProfiles = [
+  { id: "fp1", name: "Haniya", department: "women", heightCm: 165, weightKg: 58 },
+  { id: "fp2", name: "Amna", department: "kids", ageYears: 5, heightCm: 108, weightKg: 18 },
 ];
 
 export interface OrderItem {
@@ -38,22 +38,22 @@ export const orders: Order[] = [
     status: "Delivered",
     items: [
       {
-        sku: "HV-GD-001-BL-4Y",
+        sku: "HV-WD-001-BL-M",
         name: "Linen Meadow Dress",
         color: "Blush",
-        size: "4Y",
+        size: "M",
         price: 8900,
         qty: 1,
-        image: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=200",
+        image: "",
       },
       {
-        sku: "HV-GC-003-CR-4Y",
+        sku: "HV-WC-003-CR-M",
         name: "Knit Cardigan",
         color: "Cream",
-        size: "4Y",
+        size: "M",
         price: 6400,
         qty: 1,
-        image: "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=200",
+        image: "",
       },
     ],
     subtotal: 15300,
@@ -68,13 +68,13 @@ export const orders: Order[] = [
     status: "Delivered",
     items: [
       {
-        sku: "HV-GD-002-BL-5Y",
+        sku: "HV-WD-002-BL-L",
         name: "Floral Pink Dress",
         color: "Blush",
-        size: "5Y",
+        size: "L",
         price: 12300,
         qty: 1,
-        image: "https://images.unsplash.com/photo-1519457851430-31b60c9e5484?w=200",
+        image: "",
       },
     ],
     subtotal: 12300,
@@ -87,13 +87,13 @@ export const orders: Order[] = [
     status: "Processing",
     items: [
       {
-        sku: "HV-GD-001-BL-4Y",
+        sku: "HV-WD-001-BL-M",
         name: "Linen Meadow Dress",
         color: "Blush",
-        size: "4Y",
+        size: "M",
         price: 8900,
         qty: 1,
-        image: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=200",
+        image: "",
       },
     ],
     subtotal: 8900,

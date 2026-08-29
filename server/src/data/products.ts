@@ -10,7 +10,7 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
-  category: "girls" | "boys" | "baby" | "accessories";
+  category: "men" | "women" | "kids" | "accessories";
   subCategory: string;
   price: number;
   compareAtPrice?: number;
@@ -21,12 +21,12 @@ export interface Product {
   description: string;
   material: string;
   care: string;
-  ageRange: string;
+  sizeRange: string;
   variants: ProductVariant[];
 }
 
-const sizesFor = (ageRange: string) =>
-  ["2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y"].filter((_, i) => i < 6);
+const adultSizes = ["XS", "S", "M", "L", "XL"];
+const kidsSizes = ["2Y", "3Y", "4Y", "5Y", "6Y", "7Y"];
 
 const colorSwatch: Record<string, string> = {
   Blush: "#EFD3CE",
@@ -35,6 +35,9 @@ const colorSwatch: Record<string, string> = {
   Sage: "#B7BFA8",
   Camel: "#C69C6D",
   Chocolate: "#5A4433",
+  Black: "#1C1B19",
+  Navy: "#2B3A55",
+  White: "#FAFAF8",
 };
 
 function makeVariants(colors: string[], sizes: string[], skuPrefix: string): ProductVariant[] {
@@ -58,123 +61,104 @@ export const products: Product[] = [
     id: "p1",
     slug: "linen-meadow-dress",
     name: "Linen Meadow Dress",
-    category: "girls",
+    category: "women",
     subCategory: "Dresses",
     price: 8900,
     isNew: true,
     rating: 5,
     reviewCount: 24,
-    images: [
-      "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=800",
-      "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=800",
-      "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=800",
-    ],
+    images: [],
     description:
       "A sleeveless dress crafted from premium linen fabric. Soft, breathable, and perfect for every season.",
     material: "100% Premium Linen",
     care: "Hand wash cold, lay flat to dry",
-    ageRange: "2-8 years",
-    variants: makeVariants(["Blush", "Cream", "Rose", "Chocolate"], sizesFor("2-8"), "HV-GD-001"),
+    sizeRange: "XS-XL",
+    variants: makeVariants(["Blush", "Cream", "Rose", "Chocolate"], adultSizes, "HV-WD-001"),
   },
   {
     id: "p2",
     slug: "floral-embroidered-dress",
     name: "Floral Embroidered Dress",
-    category: "girls",
+    category: "women",
     subCategory: "Dresses",
     price: 5600,
     isNew: true,
     rating: 4.8,
     reviewCount: 18,
-    images: [
-      "https://images.unsplash.com/photo-1519457851430-31b60c9e5484?w=800",
-      "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=800",
-    ],
-    description: "Delicate floral embroidery on a soft cotton base, finished with a peter pan collar.",
+    images: [],
+    description: "Delicate floral embroidery on a soft cotton base, finished with a tailored collar.",
     material: "100% Organic Cotton",
     care: "Machine wash cold, gentle cycle",
-    ageRange: "2-8 years",
-    variants: makeVariants(["Blush", "Cream"], sizesFor("2-8"), "HV-GD-002"),
+    sizeRange: "XS-XL",
+    variants: makeVariants(["Blush", "Cream"], adultSizes, "HV-WD-002"),
   },
   {
     id: "p3",
     slug: "knitted-cardigan",
     name: "Knitted Cardigan",
-    category: "girls",
+    category: "women",
     subCategory: "Knitwear",
     price: 4200,
     isNew: true,
     rating: 4.9,
     reviewCount: 12,
-    images: [
-      "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=800",
-      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800",
-    ],
-    description: "A cosy cable-knit cardigan with a hand-tied bow, perfect for layering.",
+    images: [],
+    description: "A cosy cable-knit cardigan, perfect for layering through every season.",
     material: "Cotton-wool blend",
     care: "Hand wash cold",
-    ageRange: "2-8 years",
-    variants: makeVariants(["Rose", "Cream"], sizesFor("2-8"), "HV-GC-003"),
+    sizeRange: "XS-XL",
+    variants: makeVariants(["Rose", "Cream"], adultSizes, "HV-WC-003"),
   },
   {
     id: "p4",
-    slug: "collar-romper",
-    name: "Collar Romper",
-    category: "baby",
+    slug: "kids-collar-romper",
+    name: "Kids Collar Romper",
+    category: "kids",
     subCategory: "Rompers",
     price: 4400,
     isNew: true,
     rating: 4.7,
     reviewCount: 9,
-    images: [
-      "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=800",
-      "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=800",
-    ],
+    images: [],
     description: "A classic collared romper in soft brushed cotton, with easy snap closures.",
     material: "Brushed Cotton",
     care: "Machine wash warm",
-    ageRange: "0-2 years",
-    variants: makeVariants(["Camel", "Cream"], ["3M", "6M", "12M", "18M", "2Y"], "HV-BR-004"),
+    sizeRange: "2Y-7Y",
+    variants: makeVariants(["Camel", "Cream"], kidsSizes, "HV-KR-004"),
   },
   {
     id: "p5",
-    slug: "cozy-knit-set",
-    name: "Cozy Knit Set",
-    category: "boys",
+    slug: "mens-knit-set",
+    name: "Men's Knit Set",
+    category: "men",
     subCategory: "Sets",
     price: 5400,
     isNew: true,
     rating: 4.9,
     reviewCount: 15,
-    images: [
-      "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=800",
-      "https://images.unsplash.com/photo-1519457851430-31b60c9e5484?w=800",
-    ],
-    description: "A matching knit top and trouser set, ribbed at the cuffs for a snug fit.",
+    images: [],
+    description: "A matching knit crewneck and trouser set, ribbed at the cuffs for a snug fit.",
     material: "Merino wool blend",
     care: "Hand wash cold",
-    ageRange: "2-8 years",
-    variants: makeVariants(["Camel", "Sage"], sizesFor("2-8"), "HV-BS-005"),
+    sizeRange: "XS-XL",
+    variants: makeVariants(["Camel", "Sage", "Navy"], adultSizes, "HV-MS-005"),
   },
   {
     id: "p6",
-    slug: "linen-shirt-set",
-    name: "Linen Shirt Set",
-    category: "boys",
+    slug: "mens-linen-shirt-set",
+    name: "Men's Linen Shirt Set",
+    category: "men",
     subCategory: "Sets",
     price: 4800,
     isNew: true,
     rating: 4.6,
     reviewCount: 11,
-    images: [
-      "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=800",
-      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800",
-    ],
-    description: "A relaxed linen shirt paired with matching shorts, ideal for warm days.",
+    images: [],
+    description: "A relaxed linen shirt paired with matching trousers, ideal for warm days.",
     material: "100% Linen",
     care: "Machine wash cold",
-    ageRange: "2-8 years",
-    variants: makeVariants(["Camel", "Cream"], sizesFor("2-8"), "HV-BS-006"),
+    sizeRange: "XS-XL",
+    variants: makeVariants(["Camel", "Cream", "White"], adultSizes, "HV-MS-006"),
   },
 ];
 

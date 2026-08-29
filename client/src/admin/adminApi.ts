@@ -51,7 +51,7 @@ export interface AdminProductInput {
   description?: string;
   material?: string;
   care?: string;
-  ageRange?: string;
+  sizeRange?: string;
   images: string[];
   variants: AdminVariant[];
 }

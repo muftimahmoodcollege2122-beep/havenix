@@ -35,7 +35,7 @@ export interface ProductInput {
   description?: string;
   material?: string;
   care?: string;
-  ageRange?: string;
+  sizeRange?: string;
   images: string[];
   variants: {
     sku: string;
@@ -58,7 +58,7 @@ export async function createProduct(input: ProductInput): Promise<ProductRow> {
     const slug = await uniqueSlug(slugify(input.name));
     const { rows } = await client.query(
       `INSERT INTO products
-        (slug, name, category, sub_category, price, compare_at_price, is_new, description, material, care, age_range)
+        (slug, name, category, sub_category, price, compare_at_price, is_new, description, material, care, size_range)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
        RETURNING id`,
       [
@@ -72,7 +72,7 @@ export async function createProduct(input: ProductInput): Promise<ProductRow> {
         input.description ?? "",
         input.material ?? "",
         input.care ?? "",
-        input.ageRange ?? "",
+        input.sizeRange ?? "",
       ]
     );
     const productId = rows[0].id;
@@ -117,7 +117,7 @@ export async function updateProduct(id: string, input: ProductInput): Promise<Pr
     await client.query(
       `UPDATE products SET
         name = $1, category = $2, sub_category = $3, price = $4, compare_at_price = $5,
-        is_new = $6, description = $7, material = $8, care = $9, age_range = $10
+        is_new = $6, description = $7, material = $8, care = $9, size_range = $10
        WHERE id = $11`,
       [
         input.name,
@@ -129,7 +129,7 @@ export async function updateProduct(id: string, input: ProductInput): Promise<Pr
         input.description ?? "",
         input.material ?? "",
         input.care ?? "",
-        input.ageRange ?? "",
+        input.sizeRange ?? "",
         id,
       ]
     );

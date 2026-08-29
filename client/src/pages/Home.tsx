@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, AtSign, Sparkles } from "lucide-react";
 import TrustStrip from "../components/TrustStrip";
 import ProductCard from "../components/ProductCard";
+import ProductImage from "../components/ProductImage";
 import Reveal from "../components/Reveal";
 import IntroSplash from "../components/IntroSplash";
 import Magnetic from "../components/Magnetic";
@@ -10,21 +11,13 @@ import { api } from "../lib/api";
 import type { Product } from "../types";
 
 const CATEGORIES = [
-  { name: "Girls", to: "/collections/girls", img: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=600" },
-  { name: "Boys", to: "/collections/boys", img: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600" },
-  { name: "Baby", to: "/collections/baby", img: "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=600" },
-  { name: "Accessories", to: "/collections/accessories", img: "https://images.unsplash.com/photo-1519457851430-31b60c9e5484?w=600" },
+  { name: "Women", to: "/collections/women" },
+  { name: "Men", to: "/collections/men" },
+  { name: "Kids", to: "/collections/kids" },
+  { name: "Accessories", to: "/collections/accessories" },
 ];
 
-const INSTA = [
-  "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=300",
-  "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=300",
-  "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=300",
-  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300",
-  "https://images.unsplash.com/photo-1519457851430-31b60c9e5484?w=300",
-  "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=300",
-  "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=300",
-];
+const INSTA_COUNT = 7;
 
 export default function Home() {
   const [newArrivals, setNewArrivals] = useState<Product[]>([]);
@@ -68,14 +61,14 @@ export default function Home() {
                 className={`${heroRevealed ? "hero-title-anim" : "pre-reveal"} inline-block`}
                 style={{ animationDelay: "0.3s" }}
               >
-                for little hearts.
+                for every wardrobe.
               </span>
             </h1>
             <p
               className={`${heroRevealed ? "hero-title-anim" : "pre-reveal"} text-muted text-[15px] leading-relaxed max-w-md mb-8`}
               style={{ animationDelay: "0.45s" }}
             >
-              Thoughtfully designed outfits for every adventure, made with love and soft on their world.
+              Thoughtfully designed apparel for women, men, and kids — made with love and built to last.
             </p>
             <div
               className={`${heroRevealed ? "hero-title-anim" : "pre-reveal"} flex items-center gap-5`}
@@ -83,7 +76,7 @@ export default function Home() {
             >
               <Magnetic>
                 <Link
-                  to="/collections/girls"
+                  to="/collections/women"
                   className="group relative overflow-hidden bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase transition-colors"
                 >
                   <span className="relative z-10">Shop Collection</span>
@@ -91,7 +84,7 @@ export default function Home() {
                 </Link>
               </Magnetic>
               <Link
-                to="/collections/girls"
+                to="/collections/women"
                 className="link-underline group text-[13px] tracking-widest uppercase text-ink flex items-center gap-2 hover:text-clay transition-colors"
               >
                 Explore Collections
@@ -103,9 +96,8 @@ export default function Home() {
             className={`relative aspect-[4/3] overflow-hidden rounded-sm group ${heroRevealed ? "" : "pre-reveal"}`}
             style={heroRevealed ? { animation: "fadeIn 1.1s ease-out both" } : undefined}
           >
-            <img
-              src="https://images.unsplash.com/photo-1519689680058-324335c77eba?w=1000"
-              alt="Havenix kids"
+            <ProductImage
+              alt="Havenix"
               className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/10 to-transparent" />
@@ -125,8 +117,7 @@ export default function Home() {
             <Reveal key={c.name} delay={i * 100}>
               <Link to={c.to} className="group block">
                 <div className="aspect-[4/5] overflow-hidden">
-                  <img
-                    src={c.img}
+                  <ProductImage
                     alt={c.name}
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                   />
@@ -170,11 +161,11 @@ export default function Home() {
         <Reveal className="grid md:grid-cols-2 bg-blush/30 rounded-sm overflow-hidden group">
           <div className="p-10 md:p-14 flex flex-col justify-center">
             <h3 className="font-serif text-[30px] md:text-[36px] leading-tight text-ink mb-5">
-              Soft fabrics.<br />Beautifully made.<br />For every little moment.
+              Quality fabrics.<br />Beautifully made.<br />For every wardrobe.
             </h3>
             <Magnetic>
               <Link
-                to="/collections/girls"
+                to="/collections/women"
                 className="relative overflow-hidden bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase w-fit transition-colors hover:bg-ink"
               >
                 Discover More
@@ -182,9 +173,8 @@ export default function Home() {
             </Magnetic>
           </div>
           <div className="aspect-[4/3] md:aspect-auto overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=900"
-              alt="Soft fabrics"
+            <ProductImage
+              alt="Quality fabrics"
               className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
             />
           </div>
@@ -194,20 +184,19 @@ export default function Home() {
       {/* Instagram strip */}
       <section className="max-w-[1440px] mx-auto px-6 py-16 overflow-hidden">
         <Reveal className="text-center mb-8">
-          <h2 className="font-serif text-[20px] tracking-wide text-ink">Little Moments, Big Memories</h2>
-          <div className="text-[13px] text-clay mt-1">@havenix.children</div>
+          <h2 className="font-serif text-[20px] tracking-wide text-ink">Follow Along</h2>
+          <div className="text-[13px] text-clay mt-1">@havenix</div>
         </Reveal>
         <div className="hidden md:grid grid-cols-7 gap-3">
-          {INSTA.map((src, i) => (
+          {Array.from({ length: INSTA_COUNT }).map((_, i) => (
             <Reveal key={i} delay={i * 60} className="aspect-square overflow-hidden">
-              <img
-                src={src}
+              <ProductImage
                 alt=""
                 className="w-full h-full object-cover transition-all duration-500 hover:opacity-80 hover:scale-105"
               />
             </Reveal>
           ))}
-          <Reveal delay={INSTA.length * 60} className="aspect-square">
+          <Reveal delay={INSTA_COUNT * 60} className="aspect-square">
             <div
               className="w-full h-full bg-espresso text-cream flex flex-col items-center justify-center gap-2 text-center px-2 transition-colors duration-300 hover:bg-ink"
               style={{ animation: "pulseRing 2.5s ease-out infinite" }}
@@ -220,9 +209,9 @@ export default function Home() {
         {/* mobile: infinite marquee */}
         <div className="md:hidden -mx-6">
           <div className="marquee-track gap-3 px-6">
-            {[...INSTA, ...INSTA].map((src, i) => (
+            {Array.from({ length: INSTA_COUNT * 2 }).map((_, i) => (
               <div key={i} className="w-28 h-28 shrink-0 overflow-hidden">
-                <img src={src} alt="" className="w-full h-full object-cover" />
+                <ProductImage alt="" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>

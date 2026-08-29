@@ -4,7 +4,7 @@ import { Plus, Trash2, ArrowLeft } from "lucide-react";
 import { adminApi } from "./adminApi";
 import type { AdminProductInput, AdminVariant } from "./adminApi";
 
-const CATEGORIES = ["girls", "boys", "baby", "accessories"];
+const CATEGORIES = ["women", "men", "kids", "accessories"];
 
 const emptyVariant = (): AdminVariant => ({
   sku: "",
@@ -20,7 +20,7 @@ export default function AdminProductForm() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("girls");
+  const [category, setCategory] = useState("women");
   const [subCategory, setSubCategory] = useState("");
   const [price, setPrice] = useState("");
   const [compareAtPrice, setCompareAtPrice] = useState("");
@@ -28,7 +28,7 @@ export default function AdminProductForm() {
   const [description, setDescription] = useState("");
   const [material, setMaterial] = useState("");
   const [care, setCare] = useState("");
-  const [ageRange, setAgeRange] = useState("");
+  const [sizeRange, setSizeRange] = useState("");
   const [images, setImages] = useState<string[]>([""]);
   const [variants, setVariants] = useState<AdminVariant[]>([emptyVariant()]);
 
@@ -54,7 +54,7 @@ export default function AdminProductForm() {
       setDescription(p.description || "");
       setMaterial(p.material || "");
       setCare(p.care || "");
-      setAgeRange(p.ageRange || "");
+      setSizeRange(p.sizeRange || "");
       setImages(p.images.length ? p.images : [""]);
       setVariants(
         p.variants.length
@@ -103,7 +103,7 @@ export default function AdminProductForm() {
       description,
       material,
       care,
-      ageRange,
+      sizeRange,
       images: images.filter((i) => i.trim()),
       variants: cleanVariants,
     };
@@ -164,8 +164,8 @@ export default function AdminProductForm() {
                 ))}
               </select>
             </Field>
-            <Field label="Age Range (e.g. 2-6Y)">
-              <input value={ageRange} onChange={(e) => setAgeRange(e.target.value)} className="input" />
+            <Field label="Size Range (e.g. XS-XL)">
+              <input value={sizeRange} onChange={(e) => setSizeRange(e.target.value)} className="input" />
             </Field>
             <Field label="Price (PKR)">
               <input

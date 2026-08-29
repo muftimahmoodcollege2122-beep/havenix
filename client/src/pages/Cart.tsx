@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Minus, Plus, X, ShieldCheck, RefreshCw, Award } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
+import ProductImage from "../components/ProductImage";
 
 export default function Cart() {
   const { cart, updateItem, removeItem } = useCart();
@@ -17,7 +18,7 @@ export default function Cart() {
       {cart.items.length === 0 ? (
         <div className="text-center py-24">
           <p className="text-muted mb-6">Your bag is empty.</p>
-          <Link to="/collections/girls" className="bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase hover:bg-ink transition-colors">
+          <Link to="/collections/women" className="bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase hover:bg-ink transition-colors">
             Continue Shopping
           </Link>
         </div>
@@ -27,12 +28,12 @@ export default function Cart() {
             {cart.items.map((item) => (
               <div key={item.sku} className="flex gap-4 pb-6 border-b border-line">
                 <div className="w-24 h-28 bg-paper overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  <ProductImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 flex flex-col">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-[14px] text-ink">{item.name}</div>
+                      <div className="text-[14px] font-medium text-ink">{item.name}</div>
                       <div className="text-[12px] text-muted mt-1">
                         {item.color} / {item.size}
                       </div>
@@ -57,7 +58,7 @@ export default function Cart() {
                         <Plus size={12} />
                       </button>
                     </div>
-                    <div className="text-[14px] text-ink">PKR {(item.price * item.qty).toLocaleString()}</div>
+                    <div className="text-[14px] font-medium text-ink">PKR {(item.price * item.qty).toLocaleString()}</div>
                   </div>
                 </div>
               </div>
@@ -80,11 +81,11 @@ export default function Cart() {
             <div className="space-y-3 mb-4">
               <div className="flex justify-between text-[14px]">
                 <span className="text-muted">Subtotal</span>
-                <span className="text-ink">PKR {cart.subtotal.toLocaleString()}</span>
+                <span className="font-medium text-ink">PKR {cart.subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-[14px]">
                 <span className="text-muted">Shipping</span>
-                <span className="text-ink">{cart.shipping === 0 ? "Free" : `PKR ${cart.shipping.toLocaleString()}`}</span>
+                <span className="font-medium text-ink">{cart.shipping === 0 ? "Free" : `PKR ${cart.shipping.toLocaleString()}`}</span>
               </div>
             </div>
 
@@ -105,7 +106,7 @@ export default function Cart() {
             >
               Checkout
             </button>
-            <Link to="/collections/girls" className="block text-center text-[12px] text-clay underline underline-offset-2 mb-8">
+            <Link to="/collections/women" className="block text-center text-[12px] text-clay underline underline-offset-2 mb-8">
               Continue Shopping
             </Link>
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Trash2, Pencil, Search } from "lucide-react";
 import { adminApi } from "./adminApi";
+import ProductImage from "../components/ProductImage";
 
 interface AdminVariant {
   sku: string;
@@ -113,7 +114,7 @@ export default function AdminProducts() {
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-14 bg-blush/30 overflow-hidden shrink-0">
                         {p.images[0] && (
-                          <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
+                          <ProductImage src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div>
@@ -123,7 +124,7 @@ export default function AdminProducts() {
                     </div>
                   </td>
                   <td className="px-5 py-4 text-muted capitalize">{p.category}</td>
-                  <td className="px-5 py-4 text-ink">PKR {p.price.toLocaleString()}</td>
+                  <td className="px-5 py-4 font-medium text-ink">PKR {p.price.toLocaleString()}</td>
                   <td className="px-5 py-4">
                     <div className="flex flex-col gap-1.5">
                       {p.variants.map((v) => (

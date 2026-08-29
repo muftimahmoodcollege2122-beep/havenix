@@ -22,11 +22,12 @@ CREATE TABLE IF NOT EXISTS addresses (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS children (
+CREATE TABLE IF NOT EXISTS family_profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  age_years INT NOT NULL,
+  department TEXT NOT NULL DEFAULT 'women', -- women | men | kids
+  age_years INT,
   height_cm INT NOT NULL,
   weight_kg INT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -42,7 +43,7 @@ CREATE TABLE IF NOT EXISTS products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
-  category TEXT NOT NULL, -- girls | boys | baby | accessories
+  category TEXT NOT NULL, -- men | women | kids | accessories
   sub_category TEXT NOT NULL,
   price INT NOT NULL, -- minor-free integer currency (PKR, no decimals used in mockups)
   compare_at_price INT,
@@ -52,7 +53,7 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT NOT NULL DEFAULT '',
   material TEXT NOT NULL DEFAULT '',
   care TEXT NOT NULL DEFAULT '',
-  age_range TEXT NOT NULL DEFAULT '',
+  size_range TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

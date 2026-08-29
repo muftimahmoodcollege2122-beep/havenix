@@ -3,12 +3,11 @@ import { Heart } from "lucide-react";
 import { api } from "../lib/api";
 
 export default function SizeGuide() {
-  const [tab, setTab] = useState<"girls" | "boys" | "baby">("girls");
+  const [tab, setTab] = useState<"women" | "men" | "kids">("women");
   const [guides, setGuides] = useState<any>(null);
-  const [height, setHeight] = useState(108);
-  const [age, setAge] = useState(5);
+  const [height, setHeight] = useState(165);
   const [recommendation, setRecommendation] = useState<{ size: string; fit: string } | null>({
-    size: "5Y",
+    size: "M",
     fit: "Regular Fit",
   });
 
@@ -17,7 +16,7 @@ export default function SizeGuide() {
   }, []);
 
   const findSize = async () => {
-    const rec: any = await api.recommendSize(height, age);
+    const rec: any = await api.recommendSize(height, tab);
     setRecommendation(rec);
   };
 
@@ -28,7 +27,7 @@ export default function SizeGuide() {
       <div className="grid md:grid-cols-[1fr_360px] gap-8 md:gap-12">
         <div>
           <div className="flex gap-6 border-b border-line mb-6 overflow-x-auto">
-            {(["girls", "boys", "baby"] as const).map((t) => (
+            {(["women", "men", "kids"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -46,7 +45,7 @@ export default function SizeGuide() {
               <table className="w-full text-[13px] min-w-[420px]">
                 <thead>
                   <tr className="text-left text-muted border-b border-line">
-                    <th className="py-3 font-normal">Age</th>
+                    <th className="py-3 font-normal">Size</th>
                     <th className="py-3 font-normal">Height (cm)</th>
                     <th className="py-3 font-normal">Chest (cm)</th>
                     <th className="py-3 font-normal">Waist (cm)</th>
@@ -55,7 +54,7 @@ export default function SizeGuide() {
                 <tbody>
                   {guides[tab].map((row: any) => (
                     <tr key={row.size} className="border-b border-line">
-                      <td className="py-3 text-ink">{row.ageRange}</td>
+                      <td className="py-3 text-ink">{row.label}</td>
                       <td className="py-3 text-muted">{row.heightCm}</td>
                       <td className="py-3 text-muted">{row.chestCm}</td>
                       <td className="py-3 text-muted">{row.waistCm}</td>
@@ -69,20 +68,11 @@ export default function SizeGuide() {
           )}
         </div>
 
-        {/* Child profile / recommendation */}
+        {/* Size recommendation */}
         <div className="space-y-8">
           <div className="border border-line rounded-sm p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-blush flex items-center justify-center font-serif text-[14px]">A</div>
-              <div>
-                <div className="text-[13px] text-ink">Amna</div>
-                <div className="text-[11px] text-muted">5 Years · 108 cm · 18 kg</div>
-              </div>
-              <button className="ml-auto text-[11px] text-clay underline underline-offset-2">Edit Profile</button>
-            </div>
-
             <div className="text-[12px] tracking-widest uppercase text-ink mb-3">Size Recommendation</div>
-            <p className="text-[12px] text-muted mb-4">Based on height {height} cm and age {age} years</p>
+            <p className="text-[12px] text-muted mb-4">Based on height {height} cm, {tab} sizing</p>
 
             {recommendation && (
               <div className="flex items-center justify-between bg-blush/30 px-4 py-3 rounded-sm">
@@ -98,8 +88,7 @@ export default function SizeGuide() {
           <div className="border border-line rounded-sm p-5">
             <div className="text-[12px] tracking-widest uppercase text-ink mb-4">Measurements</div>
             <div className="space-y-4">
-              <RangeField label="Height" unit="cm" value={height} min={50} max={140} onChange={setHeight} />
-              <RangeField label="Age" unit="years" value={age} min={0} max={10} onChange={setAge} />
+              <RangeField label="Height" unit="cm" value={height} min={90} max={200} onChange={setHeight} />
             </div>
             <p className="text-[12px] text-muted mt-4 mb-3">Not sure? Find your perfect size.</p>
             <button

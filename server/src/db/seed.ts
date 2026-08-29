@@ -1,6 +1,6 @@
 import { pool } from "./pool";
 import { products } from "../data/products";
-import { customer, childProfiles, orders } from "../data/account";
+import { customer, familyProfiles, orders } from "../data/account";
 
 async function seed() {
   const client = await pool.connect();
@@ -9,7 +9,7 @@ async function seed() {
 
     // Wipe existing data (idempotent re-seed for dev)
     await client.query(
-      "TRUNCATE order_items, orders, cart_items, carts, product_variants, product_images, products, children, addresses, customers RESTART IDENTITY CASCADE"
+      "TRUNCATE order_items, orders, cart_items, carts, product_variants, product_images, products, family_profiles, addresses, customers RESTART IDENTITY CASCADE"
     );
 
     // Customer
@@ -19,11 +19,11 @@ async function seed() {
     );
     const customerId = custRes.rows[0].id;
 
-    // Children
-    for (const c of childProfiles) {
+    // Family profiles
+    for (const c of familyProfiles) {
       await client.query(
-        "INSERT INTO children (customer_id, name, age_years, height_cm, weight_kg) VALUES ($1,$2,$3,$4,$5)",
-        [customerId, c.name, c.ageYears, c.heightCm, c.weightKg]
+        "INSERT INTO family_profiles (customer_id, name, department, age_years, height_cm, weight_kg) VALUES ($1,$2,$3,$4,$5,$6)",
+        [customerId, c.name, c.department, (c as any).ageYears || null, c.heightCm, c.weightKg]
       );
     }
 
@@ -31,7 +31,7 @@ async function seed() {
     const slugToId: Record<string, string> = {};
     for (const p of products) {
       const res = await client.query(
-        `INSERT INTO products (slug, name, category, sub_category, price, is_new, rating, review_count, description, material, care, age_range)
+        `INSERT INTO products (slug, name, category, sub_category, price, is_new, rating, review_count, description, material, care, size_range)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id`,
         [
           p.slug,
@@ -45,7 +45,7 @@ async function seed() {
           p.description,
           p.material,
           p.care,
-          p.ageRange,
+          p.sizeRange,
         ]
       );
       const productId = res.rows[0].id;
@@ -94,7 +94,7 @@ async function seed() {
     }
 
     await client.query("COMMIT");
-    console.log(`Seeded ${products.length} products, ${orders.length} orders, ${childProfiles.length} children.`);
+    console.log(`Seeded ${products.length} products, ${orders.length} orders, ${familyProfiles.length} family profiles.`);
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;

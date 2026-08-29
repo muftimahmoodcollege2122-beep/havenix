@@ -10,7 +10,7 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
-  category: "girls" | "boys" | "baby" | "accessories";
+  category: "men" | "women" | "kids" | "accessories";
   subCategory: string;
   price: number;
   compareAtPrice?: number;
@@ -21,7 +21,7 @@ export interface Product {
   description: string;
   material: string;
   care: string;
-  ageRange: string;
+  sizeRange: string;
   variants: ProductVariant[];
 }
 
@@ -67,7 +67,7 @@ export interface Order {
   estimatedDelivery?: string;
 }
 
-export interface ChildProfile {
+export interface FamilyProfile {
   id: string;
   name: string;
   ageYears: number;
