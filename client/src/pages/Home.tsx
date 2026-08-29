@@ -92,7 +92,7 @@ export default function Home() {
               </Magnetic>
               <Link
                 to="/collections/girls"
-                className="group text-[13px] tracking-widest uppercase text-ink flex items-center gap-2 hover:text-clay transition-colors"
+                className="link-underline group text-[13px] tracking-widest uppercase text-ink flex items-center gap-2 hover:text-clay transition-colors"
               >
                 Explore Collections
                 <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1.5" />
@@ -150,7 +150,7 @@ export default function Home() {
           <h2 className="text-[15px] tracking-widest uppercase text-ink">New Arrivals</h2>
           <Link
             to="/new-in"
-            className="group text-[12px] tracking-widest uppercase text-clay flex items-center gap-1 hover:text-espresso transition-colors"
+            className="link-underline group text-[12px] tracking-widest uppercase text-clay flex items-center gap-1 hover:text-espresso transition-colors"
           >
             View All New In
             <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />

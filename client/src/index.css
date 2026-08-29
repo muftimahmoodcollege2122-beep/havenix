@@ -90,10 +90,32 @@ button { font-family: inherit; }
   will-change: transform;
 }
 
+.link-underline {
+  position: relative;
+  display: inline-block;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.link-underline:hover::after,
+.link-underline:focus-visible::after {
+  transform: scaleX(1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .float-shape, .marquee-track, .hero-title-anim { animation: none !important; }
   .intro-logo, .intro-logo-line { animation: none !important; opacity: 1 !important; }
   .pre-reveal { opacity: 1 !important; }
   .magnetic-btn { transition: none !important; transform: none !important; }
+  .link-underline::after { transition: none !important; }
 }

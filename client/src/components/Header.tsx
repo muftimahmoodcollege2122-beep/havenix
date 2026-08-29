@@ -46,7 +46,7 @@ export default function Header() {
           </button>
           <nav className="hidden lg:flex items-center gap-6 text-[13px] tracking-wide uppercase text-ink/80">
             {NAV.map((n) => (
-              <Link key={n.label} to={n.to} className="hover:text-clay transition-colors">
+              <Link key={n.label} to={n.to} className="link-underline hover:text-clay transition-colors">
                 {n.label}
               </Link>
             ))}
