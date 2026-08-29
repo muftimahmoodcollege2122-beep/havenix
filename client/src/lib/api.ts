@@ -1,4 +1,5 @@
-const BASE = `${import.meta.env.VITE_API_URL || ""}/api`;
+const API_ORIGIN = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const BASE = `${API_ORIGIN}/api`;
 const TOKEN_KEY = "havenix_customer_token";
 
 async function req<T>(path: string, options?: RequestInit): Promise<T> {

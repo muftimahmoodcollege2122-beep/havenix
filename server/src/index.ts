@@ -37,6 +37,14 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
+// Any request that didn't match a real route (typo'd path, stray slash from a
+// misconfigured VITE_API_URL, wrong method, etc.) gets JSON back — never
+// Express's default HTML 404 page, which is what turns into a confusing
+// "Unexpected token '<'" error on the client.
+app.use((req, res) => {
+  res.status(404).json({ error: "Not found", path: req.originalUrl });
+});
+
 // Catches multer (file upload) errors and any other thrown middleware errors
 // so the client always gets JSON back instead of a raw HTML error page.
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

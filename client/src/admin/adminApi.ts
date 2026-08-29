@@ -1,4 +1,4 @@
-const API_ORIGIN = import.meta.env.VITE_API_URL || "";
+const API_ORIGIN = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 const BASE = `${API_ORIGIN}/api`;
 const STORAGE_KEY = "havenix_admin_key";
 
