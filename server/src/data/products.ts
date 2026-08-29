@@ -160,6 +160,23 @@ export const products: Product[] = [
     sizeRange: "XS-XL",
     variants: makeVariants(["Camel", "Cream", "White"], adultSizes, "HV-MS-006"),
   },
+  {
+    id: "p7",
+    slug: "leather-belt",
+    name: "Leather Belt",
+    category: "accessories",
+    subCategory: "Belts",
+    price: 3200,
+    isNew: true,
+    rating: 4.8,
+    reviewCount: 7,
+    images: [],
+    description: "A full-grain leather belt with a brushed metal buckle, finished by hand.",
+    material: "Full-Grain Leather",
+    care: "Wipe clean with a damp cloth",
+    sizeRange: "S-XL",
+    variants: makeVariants(["Chocolate", "Black"], ["S", "M", "L", "XL"], "HV-AB-007"),
+  },
 ];
 
 export function findProduct(slug: string) {
