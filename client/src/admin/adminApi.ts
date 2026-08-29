@@ -1,4 +1,10 @@
-const API_ORIGIN = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+function normalizeApiOrigin(raw: string): string {
+  const trimmed = raw.replace(/\/+$/, "");
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+const API_ORIGIN = normalizeApiOrigin(import.meta.env.VITE_API_URL || "");
 const BASE = `${API_ORIGIN}/api`;
 const STORAGE_KEY = "havenix_admin_key";
 
