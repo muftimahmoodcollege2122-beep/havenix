@@ -5,6 +5,7 @@ import TrustStrip from "../components/TrustStrip";
 import ProductCard from "../components/ProductCard";
 import Reveal from "../components/Reveal";
 import IntroSplash from "../components/IntroSplash";
+import Magnetic from "../components/Magnetic";
 import { api } from "../lib/api";
 import type { Product } from "../types";
 
@@ -80,13 +81,15 @@ export default function Home() {
               className={`${heroRevealed ? "hero-title-anim" : "pre-reveal"} flex items-center gap-5`}
               style={{ animationDelay: "0.6s" }}
             >
-              <Link
-                to="/collections/girls"
-                className="group relative overflow-hidden bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase transition-colors"
-              >
-                <span className="relative z-10">Shop Collection</span>
-                <span className="absolute inset-0 bg-ink -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-              </Link>
+              <Magnetic>
+                <Link
+                  to="/collections/girls"
+                  className="group relative overflow-hidden bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase transition-colors"
+                >
+                  <span className="relative z-10">Shop Collection</span>
+                  <span className="absolute inset-0 bg-ink -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
+                </Link>
+              </Magnetic>
               <Link
                 to="/collections/girls"
                 className="group text-[13px] tracking-widest uppercase text-ink flex items-center gap-2 hover:text-clay transition-colors"
@@ -169,12 +172,14 @@ export default function Home() {
             <h3 className="font-serif text-[30px] md:text-[36px] leading-tight text-ink mb-5">
               Soft fabrics.<br />Beautifully made.<br />For every little moment.
             </h3>
-            <Link
-              to="/collections/girls"
-              className="relative overflow-hidden bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase w-fit transition-colors hover:bg-ink"
-            >
-              Discover More
-            </Link>
+            <Magnetic>
+              <Link
+                to="/collections/girls"
+                className="relative overflow-hidden bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase w-fit transition-colors hover:bg-ink"
+              >
+                Discover More
+              </Link>
+            </Magnetic>
           </div>
           <div className="aspect-[4/3] md:aspect-auto overflow-hidden">
             <img
@@ -250,9 +255,11 @@ export default function Home() {
                   placeholder="Enter your email"
                   className="flex-1 bg-cream border border-line px-4 py-3 text-sm outline-none focus:border-clay transition-colors duration-300"
                 />
-                <button className="bg-espresso text-cream px-6 py-3 text-[12px] tracking-widest uppercase hover:bg-ink transition-colors duration-300 active:scale-95">
-                  Subscribe
-                </button>
+                <Magnetic>
+                  <button className="bg-espresso text-cream px-6 py-3 text-[12px] tracking-widest uppercase hover:bg-ink transition-colors duration-300 active:scale-95">
+                    Subscribe
+                  </button>
+                </Magnetic>
               </form>
             )}
           </Reveal>

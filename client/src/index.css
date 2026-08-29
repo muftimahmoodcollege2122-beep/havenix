@@ -85,9 +85,15 @@ button { font-family: inherit; }
 .intro-logo-line { animation: lineGrow 0.7s ease-out 0.7s both; }
 .pre-reveal { opacity: 0; }
 
+.magnetic-btn {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .float-shape, .marquee-track, .hero-title-anim { animation: none !important; }
   .intro-logo, .intro-logo-line { animation: none !important; opacity: 1 !important; }
   .pre-reveal { opacity: 1 !important; }
+  .magnetic-btn { transition: none !important; transform: none !important; }
 }
