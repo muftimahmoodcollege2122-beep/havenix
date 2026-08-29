@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -13,6 +13,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { api } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
 import type { Order, FamilyProfile } from "../types";
 
 const NAV = [
@@ -28,14 +29,24 @@ const NAV = [
 ];
 
 export default function Account() {
+  const { customer, loading: authLoading, logout } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<any>(null);
   const [active, setActive] = useState("dashboard");
 
   useEffect(() => {
-    api.getAccount().then(setData);
-  }, []);
+    if (!authLoading && !customer) {
+      navigate("/login", { state: { from: "/account" } });
+    }
+  }, [authLoading, customer, navigate]);
 
-  if (!data) return <div className="max-w-[1440px] mx-auto px-6 py-20 text-center text-muted">Loading...</div>;
+  useEffect(() => {
+    if (customer) api.getAccount().then(setData);
+  }, [customer]);
+
+  if (authLoading || !customer || !data) {
+    return <div className="max-w-[1440px] mx-auto px-6 py-20 text-center text-muted">Loading...</div>;
+  }
 
   const initials = data.customer.name
     .split(" ")
@@ -68,7 +79,13 @@ export default function Account() {
                 {n.label}
               </button>
             ))}
-            <button className="hidden md:flex w-full items-center gap-3 px-3 py-2.5 text-[13px] text-ink/60 hover:bg-paper rounded mt-4">
+            <button
+              onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              className="hidden md:flex w-full items-center gap-3 px-3 py-2.5 text-[13px] text-ink/60 hover:bg-paper rounded mt-4"
+            >
               <LogOut size={15} />
               Logout
             </button>

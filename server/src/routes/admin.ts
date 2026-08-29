@@ -1,5 +1,7 @@
 import { Router } from "express";
+import multer from "multer";
 import { adminAuth, ADMIN_KEY } from "../middleware/adminAuth";
+import { pool } from "../db/pool";
 import {
   listAllProductsAdmin,
   createProduct,
@@ -8,6 +10,17 @@ import {
   updateVariantInventory,
   ProductInput,
 } from "../data/adminRepo";
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 }, // 8MB per image
+  fileFilter: (_req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed"));
+    }
+    cb(null, true);
+  },
+});
 
 const router = Router();
 
@@ -80,6 +93,22 @@ router.patch("/admin/variants/:sku/inventory", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to update inventory" });
+  }
+});
+
+router.post("/admin/uploads", upload.single("image"), async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) return res.status(400).json({ error: "No image file provided" });
+
+    const { rows } = await pool.query(
+      `INSERT INTO admin_uploads (data, mime_type, size_bytes) VALUES ($1,$2,$3) RETURNING id`,
+      [file.buffer, file.mimetype, file.size]
+    );
+    res.status(201).json({ id: rows[0].id, url: `/api/uploads/${rows[0].id}` });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Upload failed" });
   }
 });
 

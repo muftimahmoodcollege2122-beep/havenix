@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Search, Heart, User, ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const NAV = [
   { label: "New In", to: "/new-in" },
@@ -15,6 +16,7 @@ const NAV = [
 
 export default function Header() {
   const { cart } = useCart();
+  const { customer } = useAuth();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -63,7 +65,11 @@ export default function Header() {
         </Link>
 
         <div className="flex-1 flex items-center justify-end gap-3 sm:gap-5 text-ink">
-          <Link to="/account" aria-label="Account" className="hidden sm:block hover:text-clay transition-colors">
+          <Link
+            to={customer ? "/account" : "/login"}
+            aria-label="Account"
+            className="hidden sm:block hover:text-clay transition-colors"
+          >
             <User size={19} />
           </Link>
           <Link to="/account?tab=wishlist" aria-label="Wishlist" className="hidden sm:block hover:text-clay transition-colors">

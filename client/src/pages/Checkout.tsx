@@ -1,23 +1,40 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ShieldCheck, RefreshCw, MessageCircle, Check } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { getCartId } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import ProductImage from "../components/ProductImage";
 
 const STEPS = ["Bag", "Contact", "Delivery", "Payment", "Review"];
 
+const PAYMENT_LABEL: Record<string, string> = {
+  jazzcash: "JazzCash",
+  easypaisa: "EasyPaisa",
+  card: "Visa / Mastercard",
+  bank_transfer: "Bank Transfer",
+  cod: "Cash on Delivery",
+};
+
 export default function Checkout() {
   const { cart, refresh } = useCart();
+  const { customer } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [placing, setPlacing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [contact, setContact] = useState({ email: "", fullName: "", phone: "", newsletter: false });
+  const [contact, setContact] = useState({
+    email: customer?.email || "",
+    fullName: customer?.name || "",
+    phone: customer?.phone || "",
+    newsletter: customer?.marketingOptIn || false,
+  });
   const [address, setAddress] = useState({ country: "Pakistan", fullAddress: "", apartment: "", city: "", postalCode: "" });
-  const [payment, setPayment] = useState({ method: "card", cardNumber: "", expiry: "", cvv: "" });
+  const [payment, setPayment] = useState<{ method: "card" | "jazzcash" | "easypaisa" | "bank_transfer" | "cod" }>({
+    method: "jazzcash",
+  });
 
   if (cart.items.length === 0 && !placing) {
     return (
@@ -47,16 +64,29 @@ export default function Checkout() {
     setPlacing(true);
     setErrorMsg("");
     try {
-      const result: any = await api.checkout({
+      if (payment.method === "cod") {
+        const result: any = await api.checkout({
+          cartId: getCartId(),
+          items: cart.items,
+          subtotal: cart.subtotal,
+          shipping: cart.shipping,
+          contact,
+          address,
+        });
+        await refresh();
+        navigate(`/orders/${result.orderId}`, { state: result });
+        return;
+      }
+
+      const result: any = await api.initiatePayment({
         cartId: getCartId(),
-        items: cart.items,
-        subtotal: cart.subtotal,
-        shipping: cart.shipping,
+        items: cart.items.map((i) => ({ sku: i.sku, qty: i.qty })),
         contact,
         address,
+        method: payment.method,
       });
       await refresh();
-      navigate(`/orders/${result.orderId}`, { state: result });
+      window.location.href = result.redirectUrl;
     } catch (e: any) {
       setErrorMsg(e.message || "Could not place order");
     } finally {
@@ -96,9 +126,16 @@ export default function Checkout() {
           {step === 2 && (
             <div className="space-y-5">
               <h2 className="text-[16px] tracking-wide text-ink mb-4">Contact Information</h2>
-              <p className="text-[12px] text-muted -mt-3">
-                Already have an account? <span className="text-clay underline underline-offset-2 cursor-pointer">Login</span>
-              </p>
+              {customer ? (
+                <p className="text-[12px] text-clay -mt-3">Logged in as {customer.email}</p>
+              ) : (
+                <p className="text-[12px] text-muted -mt-3">
+                  Already have an account?{" "}
+                  <Link to="/login" state={{ from: "/checkout" }} className="text-clay underline underline-offset-2">
+                    Login
+                  </Link>
+                </p>
+              )}
               <Field label="Email address" value={contact.email} onChange={(v) => setContact({ ...contact, email: v })} type="email" />
               <label className="flex items-center gap-2 text-[12px] text-muted">
                 <input
@@ -142,27 +179,42 @@ export default function Checkout() {
           {step === 4 && (
             <div className="space-y-5">
               <h2 className="text-[16px] tracking-wide text-ink mb-4">Payment</h2>
-              <div className="flex gap-3 mb-2">
-                {["card", "cod"].map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setPayment({ ...payment, method: m })}
-                    className={`px-5 py-2.5 text-[12px] tracking-wide border ${
-                      payment.method === m ? "border-espresso bg-espresso text-cream" : "border-line text-ink"
-                    }`}
-                  >
-                    {m === "card" ? "Credit / Debit Card" : "Cash on Delivery"}
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-3">
+                <PaymentOption
+                  active={payment.method === "jazzcash"}
+                  onClick={() => setPayment({ method: "jazzcash" })}
+                  label="JazzCash"
+                  sub="Mobile wallet"
+                />
+                <PaymentOption
+                  active={payment.method === "easypaisa"}
+                  onClick={() => setPayment({ method: "easypaisa" })}
+                  label="EasyPaisa"
+                  sub="Mobile wallet"
+                />
+                <PaymentOption
+                  active={payment.method === "card"}
+                  onClick={() => setPayment({ method: "card" })}
+                  label="Visa / Mastercard"
+                  sub="Credit or debit card"
+                />
+                <PaymentOption
+                  active={payment.method === "bank_transfer"}
+                  onClick={() => setPayment({ method: "bank_transfer" })}
+                  label="Bank Transfer"
+                  sub="Direct IBFT"
+                />
+                <PaymentOption
+                  active={payment.method === "cod"}
+                  onClick={() => setPayment({ method: "cod" })}
+                  label="Cash on Delivery"
+                  sub="Pay when it arrives"
+                />
               </div>
-              {payment.method === "card" && (
-                <>
-                  <Field label="Card Number" value={payment.cardNumber} onChange={(v) => setPayment({ ...payment, cardNumber: v })} placeholder="1234 1234 1234 1234" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Expiry" value={payment.expiry} onChange={(v) => setPayment({ ...payment, expiry: v })} placeholder="MM/YY" />
-                    <Field label="CVV" value={payment.cvv} onChange={(v) => setPayment({ ...payment, cvv: v })} placeholder="123" />
-                  </div>
-                </>
+              {payment.method !== "cod" && (
+                <p className="text-[12px] text-muted">
+                  You'll be redirected to complete your {payment.method === "card" ? "card" : payment.method === "bank_transfer" ? "bank transfer" : payment.method === "jazzcash" ? "JazzCash" : "EasyPaisa"} payment securely, then brought back here automatically.
+                </p>
               )}
               {payment.method === "cod" && <p className="text-[13px] text-muted">Pay with cash when your order arrives.</p>}
             </div>
@@ -173,7 +225,7 @@ export default function Checkout() {
               <h2 className="text-[16px] tracking-wide text-ink mb-4">Review Your Order</h2>
               <ReviewRow label="Contact" value={`${contact.fullName} · ${contact.email}`} />
               <ReviewRow label="Deliver to" value={`${address.fullAddress}, ${address.city}, ${address.country}`} />
-              <ReviewRow label="Payment" value={payment.method === "card" ? "Credit / Debit Card" : "Cash on Delivery"} />
+              <ReviewRow label="Payment" value={PAYMENT_LABEL[payment.method]} />
               <button
                 onClick={placeOrder}
                 disabled={placing}
@@ -281,6 +333,30 @@ function Field({
         className="w-full border border-line bg-transparent p-3 text-sm outline-none focus:border-clay"
       />
     </div>
+  );
+}
+
+function PaymentOption({
+  active,
+  onClick,
+  label,
+  sub,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  sub: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`text-left px-4 py-3 border rounded-sm transition-colors ${
+        active ? "border-espresso bg-espresso text-cream" : "border-line text-ink hover:border-clay"
+      }`}
+    >
+      <div className="text-[13px]">{label}</div>
+      <div className={`text-[11px] ${active ? "text-cream/70" : "text-muted"}`}>{sub}</div>
+    </button>
   );
 }
 

@@ -1,17 +1,22 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
 import StorefrontLayout from "./layouts/StorefrontLayout";
 import AdminApp from "./admin/AdminApp";
+import MockGateway from "./pages/MockGateway";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <CartProvider>
-        <Routes>
-          <Route path="/admin/*" element={<AdminApp />} />
-          <Route path="/*" element={<StorefrontLayout />} />
-        </Routes>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Routes>
+            <Route path="/admin/*" element={<AdminApp />} />
+            <Route path="/payments/mock-gateway" element={<MockGateway />} />
+            <Route path="/*" element={<StorefrontLayout />} />
+          </Routes>
+        </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

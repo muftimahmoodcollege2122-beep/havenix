@@ -1,4 +1,11 @@
-const BASE = `${import.meta.env.VITE_API_URL || ""}/api`;
+function normalizeApiOrigin(raw: string): string {
+  const trimmed = raw.replace(/\/+$/, "");
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+const API_ORIGIN = normalizeApiOrigin(import.meta.env.VITE_API_URL || "");
+const BASE = `${API_ORIGIN}/api`;
 const STORAGE_KEY = "havenix_admin_key";
 
 export function getAdminKey(): string | null {
@@ -13,8 +20,27 @@ export function clearAdminKey() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+async function parseJsonOrDiagnose(res: Response, url: string): Promise<any> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    const looksLikeHtml = text.trim().startsWith("<");
+    if (looksLikeHtml) {
+      throw new Error(
+        `Got a webpage instead of API data from: ${url}\n` +
+          `This means VITE_API_URL isn't pointing at the backend correctly. ` +
+          `Configured API base: "${API_ORIGIN || "(empty — not set)"}". ` +
+          `Check the frontend service's VITE_API_URL variable on Railway and redeploy.`
+      );
+    }
+    throw new Error(`Unexpected response from ${url}: ${text.slice(0, 200)}`);
+  }
+}
+
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const url = `${BASE}${path}`;
+  const res = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
       "x-admin-key": getAdminKey() || "",
@@ -26,11 +52,11 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
     window.location.href = "/admin/login";
     throw new Error("Unauthorized");
   }
+  const data = await parseJsonOrDiagnose(res, url);
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Request failed" }));
-    throw new Error(err.error || "Request failed");
+    throw new Error(data.error || "Request failed");
   }
-  return res.json();
+  return data;
 }
 
 export interface AdminVariant {
@@ -58,12 +84,19 @@ export interface AdminProductInput {
 
 export const adminApi = {
   login: async (key: string): Promise<boolean> => {
-    const res = await fetch(`${BASE}/admin/login`, {
+    const url = `${BASE}/admin/login`;
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key }),
     });
-    return res.ok;
+    if (!res.ok) return false;
+    try {
+      await parseJsonOrDiagnose(res, url);
+      return true;
+    } catch {
+      return false;
+    }
   },
   listProducts: () => req<any[]>(`/admin/products`),
   createProduct: (input: AdminProductInput) =>
@@ -73,4 +106,24 @@ export const adminApi = {
   deleteProduct: (id: string) => req(`/admin/products/${id}`, { method: "DELETE" }),
   updateInventory: (sku: string, inventory: number) =>
     req(`/admin/variants/${sku}/inventory`, { method: "PATCH", body: JSON.stringify({ inventory }) }),
+  uploadImage: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const url = `${BASE}/admin/uploads`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "x-admin-key": getAdminKey() || "" }, // no Content-Type — browser sets multipart boundary
+      body: formData,
+    });
+    if (res.status === 401) {
+      clearAdminKey();
+      window.location.href = "/admin/login";
+      throw new Error("Unauthorized");
+    }
+    const data = await parseJsonOrDiagnose(res, url);
+    if (!res.ok) {
+      throw new Error(data.error || "Upload failed");
+    }
+    return `${API_ORIGIN}${data.url}`;
+  },
 };

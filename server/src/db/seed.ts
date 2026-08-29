@@ -3,14 +3,18 @@ import { products } from "../data/products";
 import { customer, familyProfiles, orders } from "../data/account";
 
 async function seed() {
+  // Safe to run on every deploy: only seeds an empty database. Never wipes
+  // real data — if products already exist, this is a no-op.
+  const { rows: existing } = await pool.query("SELECT COUNT(*)::int AS count FROM products");
+  if (existing[0].count > 0) {
+    console.log(`Database already has ${existing[0].count} product(s) — skipping seed.`);
+    await pool.end();
+    return;
+  }
+
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-
-    // Wipe existing data (idempotent re-seed for dev)
-    await client.query(
-      "TRUNCATE order_items, orders, cart_items, carts, product_variants, product_images, products, family_profiles, addresses, customers RESTART IDENTITY CASCADE"
-    );
 
     // Customer
     const custRes = await client.query(
