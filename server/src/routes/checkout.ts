@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { pool } from "../db/pool";
+import { optionalCustomer } from "../middleware/customerAuth";
+import { updateCustomerContact, queueNotification } from "../data/customerRepo";
 
 const router = Router();
 
-router.post("/checkout", async (req, res) => {
+router.post("/checkout", optionalCustomer, async (req, res) => {
   const { cartId, items, subtotal, shipping, contact, address } = req.body as {
     cartId?: string;
     items: { sku: string; name: string; color: string; size: string; price: number; qty: number; image: string }[];
@@ -39,12 +41,13 @@ router.post("/checkout", async (req, res) => {
     const trackingNumber = String(Math.floor(1000000000 + Math.random() * 8999999999));
 
     await client.query(
-      `INSERT INTO orders (id, status, contact_email, contact_name, contact_phone,
+      `INSERT INTO orders (id, customer_id, status, contact_email, contact_name, contact_phone,
          delivery_country, delivery_address, delivery_apartment, delivery_city, delivery_postal_code,
          subtotal, shipping, total, tracking_number, estimated_delivery)
-       VALUES ($1,'Processing',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+       VALUES ($1,$2,'Processing',$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
       [
         orderId,
+        req.customerId || null,
         contact.email,
         contact.fullName,
         contact.phone || null,
@@ -77,6 +80,18 @@ router.post("/checkout", async (req, res) => {
     }
 
     await client.query("COMMIT");
+
+    if (req.customerId) {
+      // Keep the customer's profile current so future notifications (shipping
+      // updates, etc.) have their latest contact details.
+      await updateCustomerContact(req.customerId, { phone: contact.phone });
+    }
+    await queueNotification(req.customerId || null, "email", "order_confirmation", {
+      orderId,
+      email: contact.email,
+      name: contact.fullName,
+      total,
+    });
 
     res.status(201).json({
       orderId,

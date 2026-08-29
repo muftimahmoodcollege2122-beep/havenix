@@ -49,6 +49,7 @@ interface CreatePendingOrderInput {
   lines: Awaited<ReturnType<typeof priceItems>>["lines"];
   subtotal: number;
   shipping: number;
+  customerId?: string | null;
 }
 
 /** Creates an order in 'unpaid' state — stock is NOT decremented until payment is confirmed. */
@@ -61,12 +62,13 @@ export async function createPendingOrder(input: CreatePendingOrderInput) {
     const total = input.subtotal + input.shipping;
 
     await client.query(
-      `INSERT INTO orders (id, status, contact_email, contact_name, contact_phone,
+      `INSERT INTO orders (id, customer_id, status, contact_email, contact_name, contact_phone,
          delivery_country, delivery_address, delivery_apartment, delivery_city, delivery_postal_code,
          subtotal, shipping, total, payment_status, payment_method)
-       VALUES ($1,'Processing',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'unpaid',$13)`,
+       VALUES ($1,$2,'Processing',$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'unpaid',$14)`,
       [
         orderId,
+        input.customerId || null,
         input.contact.email,
         input.contact.fullName,
         input.contact.phone || null,
@@ -207,7 +209,8 @@ export async function failOrderPayment(orderId: string) {
 
 export async function getOrderPaymentStatus(orderId: string) {
   const { rows } = await pool.query(
-    `SELECT id, status AS "orderStatus", payment_status AS "paymentStatus", total, tracking_number AS "trackingNumber"
+    `SELECT id, customer_id AS "customerId", status AS "orderStatus", payment_status AS "paymentStatus",
+            total, tracking_number AS "trackingNumber", contact_email AS "contactEmail", contact_name AS "contactName"
      FROM orders WHERE id = $1`,
     [orderId]
   );

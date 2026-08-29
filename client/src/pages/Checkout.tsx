@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ShieldCheck, RefreshCw, MessageCircle, Check } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { getCartId } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import ProductImage from "../components/ProductImage";
 
@@ -18,12 +19,18 @@ const PAYMENT_LABEL: Record<string, string> = {
 
 export default function Checkout() {
   const { cart, refresh } = useCart();
+  const { customer } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [placing, setPlacing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [contact, setContact] = useState({ email: "", fullName: "", phone: "", newsletter: false });
+  const [contact, setContact] = useState({
+    email: customer?.email || "",
+    fullName: customer?.name || "",
+    phone: customer?.phone || "",
+    newsletter: customer?.marketingOptIn || false,
+  });
   const [address, setAddress] = useState({ country: "Pakistan", fullAddress: "", apartment: "", city: "", postalCode: "" });
   const [payment, setPayment] = useState<{ method: "card" | "jazzcash" | "easypaisa" | "bank_transfer" | "cod" }>({
     method: "jazzcash",
@@ -119,9 +126,16 @@ export default function Checkout() {
           {step === 2 && (
             <div className="space-y-5">
               <h2 className="text-[16px] tracking-wide text-ink mb-4">Contact Information</h2>
-              <p className="text-[12px] text-muted -mt-3">
-                Already have an account? <span className="text-clay underline underline-offset-2 cursor-pointer">Login</span>
-              </p>
+              {customer ? (
+                <p className="text-[12px] text-clay -mt-3">Logged in as {customer.email}</p>
+              ) : (
+                <p className="text-[12px] text-muted -mt-3">
+                  Already have an account?{" "}
+                  <Link to="/login" state={{ from: "/checkout" }} className="text-clay underline underline-offset-2">
+                    Login
+                  </Link>
+                </p>
+              )}
               <Field label="Email address" value={contact.email} onChange={(v) => setContact({ ...contact, email: v })} type="email" />
               <label className="flex items-center gap-2 text-[12px] text-muted">
                 <input

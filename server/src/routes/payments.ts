@@ -13,11 +13,13 @@ import {
   clearCart,
 } from "../data/paymentsRepo";
 import type { PaymentMethod } from "../services/paymentProvider";
+import { optionalCustomer } from "../middleware/customerAuth";
+import { updateCustomerContact, queueNotification } from "../data/customerRepo";
 
 const router = Router();
 
 // ── Start a payment: re-prices from DB, creates an unpaid order, gets a redirect URL ──
-router.post("/payments/checkout", async (req, res) => {
+router.post("/payments/checkout", optionalCustomer, async (req, res) => {
   try {
     const { cartId, items, contact, address, method } = req.body as {
       cartId?: string;
@@ -49,7 +51,14 @@ router.post("/payments/checkout", async (req, res) => {
       lines,
       subtotal,
       shipping,
+      customerId: req.customerId || null,
     });
+
+    if (req.customerId) {
+      // Keep the customer's profile current so future notifications (shipping
+      // updates, etc.) have their latest contact details.
+      await updateCustomerContact(req.customerId, { phone: contact.phone });
+    }
 
     const provider = getPaymentProvider();
     const returnUrl = `${process.env.CLIENT_URL || "http://localhost:5173"}/payments/return?orderId=${orderId}`;
@@ -92,7 +101,19 @@ router.post("/payments/webhook", async (req, res) => {
 
     if (event.status === "success") {
       const result = await finalizeOrderPayment(match.orderId, event.providerTransactionId);
-      if (!result.ok) console.error(`Failed to finalize order ${match.orderId}: ${result.reason}`);
+      if (!result.ok) {
+        console.error(`Failed to finalize order ${match.orderId}: ${result.reason}`);
+      } else if (!result.alreadyProcessed) {
+        const order = await getOrderPaymentStatus(match.orderId);
+        if (order) {
+          await queueNotification(order.customerId || null, "email", "order_confirmation", {
+            orderId: order.id,
+            email: order.contactEmail,
+            name: order.contactName,
+            total: order.total,
+          });
+        }
+      }
     } else if (event.status === "failed") {
       await failOrderPayment(match.orderId);
     }
@@ -129,6 +150,17 @@ router.post("/payments/mock-complete", async (req, res) => {
   if (outcome === "success") {
     const result = await finalizeOrderPayment(match.orderId);
     if (!result.ok) return res.status(400).json({ error: result.reason });
+    if (!result.alreadyProcessed) {
+      const order = await getOrderPaymentStatus(match.orderId);
+      if (order) {
+        await queueNotification(order.customerId || null, "email", "order_confirmation", {
+          orderId: order.id,
+          email: order.contactEmail,
+          name: order.contactName,
+          total: order.total,
+        });
+      }
+    }
   } else {
     await failOrderPayment(match.orderId);
   }

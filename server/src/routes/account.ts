@@ -1,21 +1,16 @@
 import { Router } from "express";
 import { pool } from "../db/pool";
 import { sizeGuides, recommendSize } from "../data/sizeGuide";
+import { requireCustomer } from "../middleware/customerAuth";
 
 const router = Router();
 
-// Single-tenant demo: always resolve the first seeded customer.
-async function getDemoCustomerId() {
-  const { rows } = await pool.query("SELECT id FROM customers ORDER BY created_at LIMIT 1");
-  return rows[0]?.id || null;
-}
-
-router.get("/account", async (_req, res) => {
+router.get("/account", requireCustomer, async (req, res) => {
   try {
-    const customerId = await getDemoCustomerId();
-    if (!customerId) return res.status(404).json({ error: "No customer found" });
+    const customerId = req.customerId!;
 
-    const { rows: custRows } = await pool.query("SELECT id, name, email FROM customers WHERE id = $1", [customerId]);
+    const { rows: custRows } = await pool.query("SELECT id, name, email, phone FROM customers WHERE id = $1", [customerId]);
+    if (!custRows[0]) return res.status(404).json({ error: "Account not found" });
     const { rows: familyProfiles } = await pool.query(
       `SELECT id, name, department, age_years AS "ageYears", height_cm AS "heightCm", weight_kg AS "weightKg"
        FROM family_profiles WHERE customer_id = $1 ORDER BY created_at`,

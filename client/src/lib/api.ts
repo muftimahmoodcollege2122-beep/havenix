@@ -1,8 +1,13 @@
 const BASE = `${import.meta.env.VITE_API_URL || ""}/api`;
+const TOKEN_KEY = "havenix_customer_token";
 
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = localStorage.getItem(TOKEN_KEY);
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     ...options,
   });
   if (!res.ok) {
@@ -33,4 +38,9 @@ export const api = {
   getPaymentStatus: (orderId: string) => req(`/payments/status/${orderId}`),
   mockCompletePayment: (reference: string, outcome: "success" | "failed") =>
     req(`/payments/mock-complete`, { method: "POST", body: JSON.stringify({ reference, outcome }) }),
+  signup: (body: { name: string; email: string; password: string; phone?: string }) =>
+    req(`/auth/signup`, { method: "POST", body: JSON.stringify(body) }),
+  login: (body: { email: string; password: string }) =>
+    req(`/auth/login`, { method: "POST", body: JSON.stringify(body) }),
+  me: () => req(`/auth/me`),
 };

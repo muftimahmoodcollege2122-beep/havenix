@@ -4,6 +4,7 @@ import catalogRoutes from "./routes/catalog";
 import cartRoutes from "./routes/cart";
 import accountRoutes from "./routes/account";
 import checkoutRoutes from "./routes/checkout";
+import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
 import paymentsRoutes from "./routes/payments";
 import { pool } from "./db/pool";
@@ -21,6 +22,7 @@ app.use("/api", catalogRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api", accountRoutes);
 app.use("/api", checkoutRoutes);
+app.use("/api", authRoutes);
 app.use("/api", adminRoutes);
 app.use("/api", paymentsRoutes);
 
