@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { products } from "../data/products";
+import { pool } from "../db/pool";
+import { getVariantBySku } from "../data/productRepo";
 
 interface CartLine {
   sku: string;
@@ -10,13 +11,6 @@ interface CartLine {
   size: string;
   price: number;
   qty: number;
-}
-
-const carts = new Map<string, CartLine[]>();
-
-function getCart(id: string): CartLine[] {
-  if (!carts.has(id)) carts.set(id, []);
-  return carts.get(id)!;
 }
 
 function summarize(lines: CartLine[]) {
@@ -33,57 +27,97 @@ function summarize(lines: CartLine[]) {
   };
 }
 
+async function ensureCart(cartId: string) {
+  await pool.query(
+    `INSERT INTO carts (id) VALUES ($1) ON CONFLICT (id) DO UPDATE SET updated_at = now()`,
+    [cartId]
+  );
+}
+
+async function loadCartLines(cartId: string): Promise<CartLine[]> {
+  const { rows } = await pool.query(
+    `SELECT ci.sku, ci.qty, p.id AS "productId", p.name, p.price, pv.color, pv.size,
+       (SELECT pi.url FROM product_images pi WHERE pi.product_id = p.id ORDER BY pi.position LIMIT 1) AS image
+     FROM cart_items ci
+     JOIN product_variants pv ON pv.sku = ci.sku
+     JOIN products p ON p.id = pv.product_id
+     WHERE ci.cart_id = $1
+     ORDER BY ci.id`,
+    [cartId]
+  );
+  return rows;
+}
+
 const router = Router();
 
-router.get("/:cartId", (req, res) => {
-  res.json(summarize(getCart(req.params.cartId)));
+router.get("/:cartId", async (req, res) => {
+  try {
+    const lines = await loadCartLines(req.params.cartId);
+    res.json(summarize(lines));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load cart" });
+  }
 });
 
-router.post("/:cartId/items", (req, res) => {
+router.post("/:cartId/items", async (req, res) => {
+  const { cartId } = req.params;
   const { productId, sku, qty = 1 } = req.body as { productId: string; sku: string; qty?: number };
-  const product = products.find((p) => p.id === productId);
-  const variant = product?.variants.find((v) => v.sku === sku);
-  if (!product || !variant) return res.status(404).json({ error: "Product or variant not found" });
-  if (variant.inventory < qty) return res.status(400).json({ error: "Insufficient inventory" });
+  try {
+    const variant = await getVariantBySku(sku);
+    if (!variant || variant.product_id !== productId) {
+      return res.status(404).json({ error: "Product or variant not found" });
+    }
+    if (variant.inventory < qty) {
+      return res.status(400).json({ error: "Insufficient inventory" });
+    }
 
-  const lines = getCart(req.params.cartId);
-  const existing = lines.find((l) => l.sku === sku);
-  if (existing) {
-    existing.qty += qty;
-  } else {
-    lines.push({
-      sku,
-      productId: product.id,
-      name: product.name,
-      image: product.images[0],
-      color: variant.color,
-      size: variant.size,
-      price: product.price,
-      qty,
-    });
+    await ensureCart(cartId);
+    await pool.query(
+      `INSERT INTO cart_items (cart_id, sku, qty) VALUES ($1, $2, $3)
+       ON CONFLICT (cart_id, sku) DO UPDATE SET qty = cart_items.qty + EXCLUDED.qty`,
+      [cartId, sku, qty]
+    );
+
+    const lines = await loadCartLines(cartId);
+    res.status(201).json(summarize(lines));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to add item" });
   }
-  res.status(201).json(summarize(lines));
 });
 
-router.patch("/:cartId/items/:sku", (req, res) => {
+router.patch("/:cartId/items/:sku", async (req, res) => {
+  const { cartId, sku } = req.params;
   const { qty } = req.body as { qty: number };
-  const lines = getCart(req.params.cartId);
-  const line = lines.find((l) => l.sku === req.params.sku);
-  if (!line) return res.status(404).json({ error: "Line not found" });
-  if (qty <= 0) {
-    const idx = lines.indexOf(line);
-    lines.splice(idx, 1);
-  } else {
-    line.qty = qty;
+  try {
+    if (qty <= 0) {
+      await pool.query("DELETE FROM cart_items WHERE cart_id = $1 AND sku = $2", [cartId, sku]);
+    } else {
+      const result = await pool.query(
+        "UPDATE cart_items SET qty = $1 WHERE cart_id = $2 AND sku = $3",
+        [qty, cartId, sku]
+      );
+      if (result.rowCount === 0) return res.status(404).json({ error: "Line not found" });
+    }
+    const lines = await loadCartLines(cartId);
+    res.json(summarize(lines));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update item" });
   }
-  res.json(summarize(lines));
 });
 
-router.delete("/:cartId/items/:sku", (req, res) => {
-  const lines = getCart(req.params.cartId);
-  const idx = lines.findIndex((l) => l.sku === req.params.sku);
-  if (idx >= 0) lines.splice(idx, 1);
-  res.json(summarize(lines));
+router.delete("/:cartId/items/:sku", async (req, res) => {
+  const { cartId, sku } = req.params;
+  try {
+    await pool.query("DELETE FROM cart_items WHERE cart_id = $1 AND sku = $2", [cartId, sku]);
+    const lines = await loadCartLines(cartId);
+    res.json(summarize(lines));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to remove item" });
+  }
 });
 
 export default router;

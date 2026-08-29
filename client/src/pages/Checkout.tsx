@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, RefreshCw, MessageCircle, Check } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { getCartId } from "../context/CartContext";
 import { api } from "../lib/api";
 
 const STEPS = ["Bag", "Contact", "Delivery", "Payment", "Review"];
@@ -46,6 +47,7 @@ export default function Checkout() {
     setErrorMsg("");
     try {
       const result: any = await api.checkout({
+        cartId: getCartId(),
         items: cart.items,
         subtotal: cart.subtotal,
         shipping: cart.shipping,
