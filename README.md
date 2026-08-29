@@ -49,6 +49,19 @@ Data is in-memory (server/src/data/*) — resets on server restart. Swap in Post
 following the schema in the original architecture doc (products, product_variants, carts,
 orders, etc.) without changing the route contracts.
 
+## Deploy on Railway
+
+This repo has **two services** — deploy each as a separate Railway service pointed at this repo,
+with different **Root Directory** settings:
+
+1. **Backend** — Root Directory: `server`. Railway auto-builds and runs via `railway.json`
+   (`npm run build && npm start`). No env vars required. Note the generated public URL.
+2. **Frontend** — Root Directory: `client`. Set env var `VITE_API_URL` to the backend's public URL
+   (from step 1, no trailing slash). Railway builds and serves via `railway.json`.
+
+Redeploy the frontend after setting `VITE_API_URL` so the build picks it up (Vite env vars are
+baked in at build time).
+
 ## Notes
 
 - Cart is tracked via a client-generated ID stored in localStorage — no login required.
