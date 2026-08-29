@@ -26,8 +26,8 @@ export const api = {
   getAccount: () => req(`/account`),
   getOrder: (id: string) => req(`/orders/${id}`),
   getSizeGuide: () => req(`/size-guide`),
-  recommendSize: (heightCm: number, ageYears: number) =>
-    req(`/size-recommendation`, { method: "POST", body: JSON.stringify({ heightCm, ageYears }) }),
+  recommendSize: (heightCm: number, department: "women" | "men" | "kids" = "women") =>
+    req(`/size-recommendation`, { method: "POST", body: JSON.stringify({ heightCm, department }) }),
   checkout: (body: unknown) => req(`/checkout`, { method: "POST", body: JSON.stringify(body) }),
   initiatePayment: (body: unknown) => req(`/payments/checkout`, { method: "POST", body: JSON.stringify(body) }),
   getPaymentStatus: (orderId: string) => req(`/payments/status/${orderId}`),

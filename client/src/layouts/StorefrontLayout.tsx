@@ -3,6 +3,7 @@ import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Home from "../pages/Home";
+import Collections from "../pages/Collections";
 import Collection from "../pages/Collection";
 import ProductPage from "../pages/ProductPage";
 import Cart from "../pages/Cart";
@@ -23,6 +24,7 @@ export default function StorefrontLayout() {
           <Route path="/" element={<Home />} />
           <Route path="/new-in" element={<Collection />} />
           <Route path="/sale" element={<Collection />} />
+          <Route path="/collections" element={<Collections />} />
           <Route path="/collections/:category" element={<Collection />} />
           <Route path="/products/:slug" element={<ProductPage />} />
           <Route path="/cart" element={<Cart />} />

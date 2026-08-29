@@ -16,7 +16,7 @@ export default {
         muted: "#8A7C6E",
       },
       fontFamily: {
-        serif: ["'Playfair Display'", "serif"],
+        serif: ["'Cormorant Garamond'", "serif"],
         body: ["'Manrope'", "sans-serif"],
       },
     },

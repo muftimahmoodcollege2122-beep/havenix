@@ -3,6 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { Check, Truck } from "lucide-react";
 import { api } from "../lib/api";
 import type { Order } from "../types";
+import ProductImage from "../components/ProductImage";
 
 const STAGES = ["Order Placed", "Processing", "Packed", "Shipped", "Delivered"];
 
@@ -84,27 +85,27 @@ export default function OrderTracking() {
             {order.items.map((item) => (
               <div key={item.sku} className="flex flex-wrap items-center gap-4 px-4 sm:px-5 py-4">
                 <div className="w-14 h-16 bg-paper overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  <ProductImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-[140px]">
-                  <div className="text-[13px] text-ink">{item.name}</div>
+                  <div className="text-[13px] font-medium text-ink">{item.name}</div>
                   <div className="text-[11px] text-muted">{item.color} / {item.size}</div>
                 </div>
-                <div className="text-[13px] text-ink">PKR {item.price.toLocaleString()} x{item.qty}</div>
+                <div className="text-[13px] font-medium text-ink">PKR {item.price.toLocaleString()} x{item.qty}</div>
               </div>
             ))}
             <div className="px-4 sm:px-5 py-4 space-y-2 text-[13px]">
               <div className="flex justify-between">
                 <span className="text-muted">Subtotal</span>
-                <span className="text-ink">PKR {order.subtotal.toLocaleString()}</span>
+                <span className="font-medium text-ink">PKR {order.subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Shipping</span>
-                <span className="text-ink">PKR {order.shipping.toLocaleString()}</span>
+                <span className="font-medium text-ink">PKR {order.shipping.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-[15px] pt-2 border-t border-line">
                 <span className="text-ink">Total</span>
-                <span className="text-ink">PKR {order.total.toLocaleString()}</span>
+                <span className="font-medium text-ink">PKR {order.total.toLocaleString()}</span>
               </div>
             </div>
           </div>

@@ -14,7 +14,7 @@ export interface ProductRow {
   description: string;
   material: string;
   care: string;
-  ageRange: string;
+  sizeRange: string;
   images: string[];
   variants: {
     sku: string;
@@ -30,7 +30,7 @@ export const PRODUCT_SELECT = `
     p.id, p.slug, p.name, p.category, p.sub_category AS "subCategory",
     p.price, p.compare_at_price AS "compareAtPrice", p.is_new AS "isNew",
     p.rating::float AS rating, p.review_count AS "reviewCount",
-    p.description, p.material, p.care, p.age_range AS "ageRange",
+    p.description, p.material, p.care, p.size_range AS "sizeRange",
     COALESCE(
       (SELECT json_agg(pi.url ORDER BY pi.position) FROM product_images pi WHERE pi.product_id = p.id),
       '[]'

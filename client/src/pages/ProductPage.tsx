@@ -4,6 +4,7 @@ import { Heart, Star, ChevronDown, ShieldCheck, RefreshCw, Award } from "lucide-
 import { api } from "../lib/api";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
+import ProductImage from "../components/ProductImage";
 import type { Product } from "../types";
 
 export default function ProductPage() {
@@ -62,17 +63,19 @@ export default function ProductPage() {
       <div className="grid md:grid-cols-2 gap-8 md:gap-12">
         {/* Gallery */}
         <div className="flex flex-col-reverse md:flex-row gap-4">
-          <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
-            {product.images.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImage(i)}
-                className={`w-16 h-20 shrink-0 overflow-hidden border ${activeImage === i ? "border-clay" : "border-line"}`}
-              >
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
+          {product.images.length > 1 && (
+            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
+              {product.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveImage(i)}
+                  className={`w-16 h-20 shrink-0 overflow-hidden border ${activeImage === i ? "border-clay" : "border-line"}`}
+                >
+                  <ProductImage src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
           <div className="flex-1 relative">
             {product.isNew && (
               <span className="absolute top-4 left-4 z-10 bg-cream text-[10px] tracking-widest uppercase px-2 py-1">
@@ -80,7 +83,7 @@ export default function ProductPage() {
               </span>
             )}
             <div className="aspect-[3/4] overflow-hidden bg-paper">
-              <img src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
+              <ProductImage src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
@@ -88,7 +91,7 @@ export default function ProductPage() {
         {/* Info */}
         <div>
           <h1 className="font-serif text-[26px] sm:text-[30px] text-ink mb-2">{product.name}</h1>
-          <div className="text-[20px] text-ink mb-3">PKR {product.price.toLocaleString()}</div>
+          <div className="text-[20px] font-medium text-ink mb-3">PKR {product.price.toLocaleString()}</div>
           <div className="flex items-center gap-2 mb-6">
             {[...Array(5)].map((_, i) => (
               <Star key={i} size={14} className={i < Math.round(product.rating) ? "fill-clay text-clay" : "text-line"} />

@@ -4,6 +4,7 @@ import { ShieldCheck, RefreshCw, MessageCircle, Check } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { getCartId } from "../context/CartContext";
 import { api } from "../lib/api";
+import ProductImage from "../components/ProductImage";
 
 const STEPS = ["Bag", "Contact", "Delivery", "Payment", "Review"];
 
@@ -32,7 +33,7 @@ export default function Checkout() {
     return (
       <div className="max-w-[1440px] mx-auto px-6 py-24 text-center">
         <p className="text-muted mb-6">Your bag is empty. Add items before checking out.</p>
-        <button onClick={() => navigate("/collections/girls")} className="bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase">
+        <button onClick={() => navigate("/collections/women")} className="bg-espresso text-cream px-7 py-3.5 text-[13px] tracking-widest uppercase">
           Continue Shopping
         </button>
       </div>
@@ -238,30 +239,30 @@ export default function Checkout() {
             {cart.items.map((item) => (
               <div key={item.sku} className="flex gap-3">
                 <div className="w-14 h-16 bg-cream overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  <ProductImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-[13px] text-ink">{item.name}</div>
+                  <div className="text-[13px] font-medium text-ink">{item.name}</div>
                   <div className="text-[11px] text-muted">
                     {item.color} / {item.size}
                   </div>
                 </div>
-                <div className="text-[13px] text-ink">PKR {(item.price * item.qty).toLocaleString()}</div>
+                <div className="text-[13px] font-medium text-ink">PKR {(item.price * item.qty).toLocaleString()}</div>
               </div>
             ))}
           </div>
           <div className="space-y-2 pt-4 border-t border-line text-[13px]">
             <div className="flex justify-between">
               <span className="text-muted">Subtotal</span>
-              <span className="text-ink">PKR {cart.subtotal.toLocaleString()}</span>
+              <span className="font-medium text-ink">PKR {cart.subtotal.toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted">Shipping</span>
-              <span className="text-ink">{step >= 3 ? (cart.shipping === 0 ? "Free" : `PKR ${cart.shipping.toLocaleString()}`) : "Calculated at next step"}</span>
+              <span className="font-medium text-ink">{step >= 3 ? (cart.shipping === 0 ? "Free" : `PKR ${cart.shipping.toLocaleString()}`) : "Calculated at next step"}</span>
             </div>
             <div className="flex justify-between text-[15px] pt-2 border-t border-line">
               <span className="text-ink">Total</span>
-              <span className="text-ink">PKR {(cart.subtotal + (step >= 3 ? cart.shipping : 0)).toLocaleString()}</span>
+              <span className="font-medium text-ink">PKR {(cart.subtotal + (step >= 3 ? cart.shipping : 0)).toLocaleString()}</span>
             </div>
           </div>
 

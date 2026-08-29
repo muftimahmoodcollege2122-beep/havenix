@@ -5,9 +5,11 @@ import { useCart } from "../context/CartContext";
 
 const NAV = [
   { label: "New In", to: "/new-in" },
-  { label: "Girls", to: "/collections/girls" },
-  { label: "Boys", to: "/collections/boys" },
-  { label: "Baby", to: "/collections/baby" },
+  { label: "Women", to: "/collections/women" },
+  { label: "Men", to: "/collections/men" },
+  { label: "Kids", to: "/collections/kids" },
+  { label: "Accessories", to: "/collections/accessories" },
+  { label: "Collections", to: "/collections" },
   { label: "Sale", to: "/sale" },
 ];
 
@@ -27,7 +29,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-line">
+    <header className="sticky top-0 z-40 bg-cream/98 border-b border-line">
       <div className="max-w-[1440px] mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-6 flex-1">
           <button
@@ -57,7 +59,7 @@ export default function Header() {
           <div className="font-serif text-[20px] sm:text-[26px] md:text-[30px] tracking-[0.1em] sm:tracking-[0.15em] text-ink leading-none">
             HAVENIX
           </div>
-          <div className="text-[9px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-clay mt-1">CHILDREN</div>
+          <div className="text-[9px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-clay mt-1">WOMEN · MEN · KIDS</div>
         </Link>
 
         <div className="flex-1 flex items-center justify-end gap-3 sm:gap-5 text-ink">

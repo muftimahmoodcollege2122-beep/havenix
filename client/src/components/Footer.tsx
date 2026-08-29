@@ -7,9 +7,9 @@ export default function Footer() {
       <div className="max-w-[1440px] mx-auto px-6 py-14 grid grid-cols-2 md:grid-cols-5 gap-10">
         <div className="col-span-2 md:col-span-1">
           <div className="font-serif text-[22px] tracking-[0.15em]">HAVENIX</div>
-          <div className="text-[10px] tracking-[0.35em] text-clay mt-1 mb-4">CHILDREN</div>
+          <div className="text-[10px] tracking-[0.35em] text-clay mt-1 mb-4">WOMEN · MEN · KIDS</div>
           <p className="text-xs text-cream/60 leading-relaxed">
-            Timeless clothing for little lives. Crafted with love. Designed to last.
+            Timeless apparel for the whole family. Crafted with love. Designed to last.
           </p>
           <div className="flex gap-3 mt-5 text-cream/70">
             <AtSign size={16} />
@@ -21,9 +21,9 @@ export default function Footer() {
 
         <FooterCol title="Shop" links={[
           { label: "New In", to: "/new-in" },
-          { label: "Girls", to: "/collections/girls" },
-          { label: "Boys", to: "/collections/boys" },
-          { label: "Baby", to: "/collections/baby" },
+          { label: "Women", to: "/collections/women" },
+          { label: "Men", to: "/collections/men" },
+          { label: "Kids", to: "/collections/kids" },
           { label: "Sale", to: "/sale" },
         ]} />
         <FooterCol title="Customer Care" links={[
@@ -58,7 +58,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-cream/10 text-center text-[11px] text-cream/50 py-5">
-        © 2026 Havenix Children. All rights reserved.
+        © 2026 Havenix. All rights reserved.
       </div>
     </footer>
   );

@@ -1,48 +1,45 @@
 export interface SizeRow {
   size: string;
-  ageRange: string;
+  label: string;
   heightCm: string;
   chestCm: string;
   waistCm: string;
 }
 
-export const sizeGuides: Record<"girls" | "boys" | "baby", SizeRow[]> = {
-  girls: [
-    { size: "0-3M", ageRange: "0-3M", heightCm: "50-56", chestCm: "40-42", waistCm: "40-42" },
-    { size: "3-6M", ageRange: "3-6M", heightCm: "56-68", chestCm: "42-44", waistCm: "42-44" },
-    { size: "6-12M", ageRange: "6-12M", heightCm: "68-80", chestCm: "44-48", waistCm: "44-48" },
-    { size: "1-2Y", ageRange: "1-2Y", heightCm: "80-92", chestCm: "48-50", waistCm: "48-50" },
-    { size: "2-3Y", ageRange: "2-3Y", heightCm: "92-98", chestCm: "50-52", waistCm: "50-52" },
-    { size: "3-4Y", ageRange: "3-4Y", heightCm: "98-104", chestCm: "52-54", waistCm: "52-54" },
-    { size: "4-5Y", ageRange: "4-5Y", heightCm: "104-110", chestCm: "54-56", waistCm: "54-56" },
-    { size: "5-6Y", ageRange: "5-6Y", heightCm: "110-116", chestCm: "56-58", waistCm: "56-58" },
-    { size: "6-7Y", ageRange: "6-7Y", heightCm: "116-122", chestCm: "58-60", waistCm: "58-60" },
-    { size: "7-8Y", ageRange: "7-8Y", heightCm: "122-128", chestCm: "60-64", waistCm: "58-60" },
-    { size: "8-9Y", ageRange: "8-9Y", heightCm: "128-134", chestCm: "60-64", waistCm: "58-60" },
-    { size: "9-10Y", ageRange: "9-10Y", heightCm: "134-140", chestCm: "64-70", waistCm: "58-60" },
+export const sizeGuides: Record<"women" | "men" | "kids", SizeRow[]> = {
+  women: [
+    { size: "XS", label: "XS", heightCm: "155-160", chestCm: "80-84", waistCm: "62-66" },
+    { size: "S", label: "S", heightCm: "160-165", chestCm: "84-88", waistCm: "66-70" },
+    { size: "M", label: "M", heightCm: "165-170", chestCm: "88-94", waistCm: "70-76" },
+    { size: "L", label: "L", heightCm: "170-175", chestCm: "94-100", waistCm: "76-82" },
+    { size: "XL", label: "XL", heightCm: "175-180", chestCm: "100-106", waistCm: "82-88" },
   ],
-  boys: [
-    { size: "0-3M", ageRange: "0-3M", heightCm: "50-56", chestCm: "40-42", waistCm: "40-42" },
-    { size: "3-6M", ageRange: "3-6M", heightCm: "56-68", chestCm: "42-44", waistCm: "42-44" },
-    { size: "6-12M", ageRange: "6-12M", heightCm: "68-80", chestCm: "44-48", waistCm: "44-48" },
-    { size: "1-2Y", ageRange: "1-2Y", heightCm: "80-92", chestCm: "48-50", waistCm: "48-50" },
-    { size: "2-3Y", ageRange: "2-3Y", heightCm: "92-98", chestCm: "50-52", waistCm: "50-52" },
-    { size: "3-4Y", ageRange: "3-4Y", heightCm: "98-104", chestCm: "52-54", waistCm: "52-54" },
+  men: [
+    { size: "XS", label: "XS", heightCm: "165-170", chestCm: "86-90", waistCm: "70-74" },
+    { size: "S", label: "S", heightCm: "170-175", chestCm: "90-96", waistCm: "74-80" },
+    { size: "M", label: "M", heightCm: "175-180", chestCm: "96-102", waistCm: "80-86" },
+    { size: "L", label: "L", heightCm: "180-185", chestCm: "102-108", waistCm: "86-92" },
+    { size: "XL", label: "XL", heightCm: "185-190", chestCm: "108-114", waistCm: "92-98" },
   ],
-  baby: [
-    { size: "Newborn", ageRange: "0-1M", heightCm: "45-52", chestCm: "38-40", waistCm: "38-40" },
-    { size: "0-3M", ageRange: "0-3M", heightCm: "50-56", chestCm: "40-42", waistCm: "40-42" },
-    { size: "3-6M", ageRange: "3-6M", heightCm: "56-68", chestCm: "42-44", waistCm: "42-44" },
-    { size: "6-12M", ageRange: "6-12M", heightCm: "68-80", chestCm: "44-48", waistCm: "44-48" },
+  kids: [
+    { size: "2Y", label: "2-3 Years", heightCm: "92-98", chestCm: "50-52", waistCm: "50-52" },
+    { size: "3Y", label: "3-4 Years", heightCm: "98-104", chestCm: "52-54", waistCm: "52-54" },
+    { size: "4Y", label: "4-5 Years", heightCm: "104-110", chestCm: "54-56", waistCm: "54-56" },
+    { size: "5Y", label: "5-6 Years", heightCm: "110-116", chestCm: "56-58", waistCm: "56-58" },
+    { size: "6Y", label: "6-7 Years", heightCm: "116-122", chestCm: "58-60", waistCm: "58-60" },
+    { size: "7Y", label: "7-8 Years", heightCm: "122-128", chestCm: "60-64", waistCm: "58-60" },
   ],
 };
 
-export function recommendSize(heightCm: number, ageYears: number) {
-  const rows = sizeGuides.girls;
+export function recommendSize(
+  heightCm: number,
+  department: "women" | "men" | "kids" = "women"
+) {
+  const rows = sizeGuides[department] || sizeGuides.women;
   const row =
     rows.find((r) => {
       const [min, max] = r.heightCm.split("-").map((n) => parseInt(n));
       return heightCm >= min && heightCm <= max;
     }) || rows[rows.length - 1];
-  return { size: row.size.replace("Y", "") + "Y", fit: "Regular Fit" };
+  return { size: row.size, fit: "Regular Fit" };
 }

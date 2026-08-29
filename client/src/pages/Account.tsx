@@ -5,7 +5,7 @@ import {
   Package,
   Heart,
   MapPin,
-  Baby,
+  Users,
   Ruler,
   CreditCard,
   RotateCcw,
@@ -13,14 +13,14 @@ import {
   LogOut,
 } from "lucide-react";
 import { api } from "../lib/api";
-import type { Order, ChildProfile } from "../types";
+import type { Order, FamilyProfile } from "../types";
 
 const NAV = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "orders", label: "Orders", icon: Package },
   { key: "wishlist", label: "Wishlist", icon: Heart },
   { key: "addresses", label: "Addresses", icon: MapPin },
-  { key: "children", label: "Child Profiles", icon: Baby },
+  { key: "family", label: "Family Profiles", icon: Users },
   { key: "sizes", label: "Size Profiles", icon: Ruler },
   { key: "payments", label: "Payment Methods", icon: CreditCard },
   { key: "returns", label: "Returns", icon: RotateCcw },
@@ -78,7 +78,7 @@ export default function Account() {
         <div>
           {active === "dashboard" && <Dashboard data={data} />}
           {active === "orders" && <OrdersList orders={data.orders} />}
-          {active === "children" && <ChildrenList children={data.childProfiles} />}
+          {active === "family" && <FamilyList profiles={data.familyProfiles} />}
           {["wishlist", "addresses", "sizes", "payments", "returns", "settings"].includes(active) && (
             <div className="text-muted text-sm py-16 text-center capitalize">{active} — nothing here yet.</div>
           )}
@@ -112,29 +112,29 @@ function Dashboard({ data }: { data: any }) {
               <div className="text-[11px] text-muted">{o.placedOn}</div>
             </div>
             <div className={`text-[12px] ${o.status === "Delivered" ? "text-clay" : "text-muted"}`}>{o.status}</div>
-            <div className="text-[13px] text-ink">PKR {o.total.toLocaleString()}</div>
+            <div className="text-[13px] font-medium text-ink">PKR {o.total.toLocaleString()}</div>
           </Link>
         ))}
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[13px] tracking-widest uppercase text-ink">Child Profiles</h2>
+        <h2 className="text-[13px] tracking-widest uppercase text-ink">Family Profiles</h2>
         <span className="text-[12px] text-clay">Edit</span>
       </div>
       <div className="flex flex-wrap gap-4">
-        {data.childProfiles.map((c: ChildProfile) => (
+        {data.familyProfiles.map((c: FamilyProfile) => (
           <div key={c.id} className="flex items-center gap-3 border border-line rounded-sm px-4 py-3">
             <div className="w-9 h-9 rounded-full bg-blush flex items-center justify-center text-[12px] font-serif">
               {c.name[0]}
             </div>
             <div className="text-[12px]">
               <div className="text-ink">{c.name}</div>
-              <div className="text-muted">{c.ageYears} Years · {c.heightCm}cm · {c.weightKg}kg</div>
+              <div className="text-muted">{c.heightCm}cm · {c.weightKg}kg</div>
             </div>
           </div>
         ))}
         <button className="border border-dashed border-line rounded-sm px-4 py-3 text-[12px] text-muted hover:border-clay hover:text-clay transition-colors">
-          + Add Child Profile
+          + Add Family Profile
         </button>
       </div>
     </div>
@@ -162,7 +162,7 @@ function OrdersList({ orders }: { orders: Order[] }) {
               <div className="text-[11px] text-muted">{o.placedOn} · {o.items.length} item(s)</div>
             </div>
             <div className={`text-[12px] ${o.status === "Delivered" ? "text-clay" : "text-muted"}`}>{o.status}</div>
-            <div className="text-[13px] text-ink">PKR {o.total.toLocaleString()}</div>
+            <div className="text-[13px] font-medium text-ink">PKR {o.total.toLocaleString()}</div>
           </Link>
         ))}
       </div>
@@ -170,19 +170,19 @@ function OrdersList({ orders }: { orders: Order[] }) {
   );
 }
 
-function ChildrenList({ children }: { children: ChildProfile[] }) {
+function FamilyList({ profiles }: { profiles: FamilyProfile[] }) {
   return (
     <div>
-      <h1 className="text-[20px] tracking-wide text-ink mb-6">Child Profiles</h1>
+      <h1 className="text-[20px] tracking-wide text-ink mb-6">Family Profiles</h1>
       <div className="grid sm:grid-cols-2 gap-4">
-        {children.map((c) => (
+        {profiles.map((c) => (
           <div key={c.id} className="border border-line rounded-sm p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-blush flex items-center justify-center font-serif text-[16px]">
               {c.name[0]}
             </div>
             <div className="text-[13px]">
               <div className="text-ink">{c.name}</div>
-              <div className="text-muted">{c.ageYears} Years · {c.heightCm}cm · {c.weightKg}kg</div>
+              <div className="text-muted">{c.heightCm}cm · {c.weightKg}kg</div>
             </div>
           </div>
         ))}

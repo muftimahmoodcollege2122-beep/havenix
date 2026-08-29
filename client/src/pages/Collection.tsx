@@ -6,7 +6,8 @@ import { api } from "../lib/api";
 import type { Product } from "../types";
 
 const SUBCATS = ["Dresses", "Tops", "Bottoms", "Sets", "Knitwear", "Outerwear", "Sleepwear"];
-const AGES = ["0-3M", "3-6M", "6-12M", "1-2Y", "2-3Y", "3-4Y", "4-5Y", "5-6Y", "6-7Y", "7-8Y", "8-9Y", "9-10Y"];
+const ADULT_SIZES = ["XS", "S", "M", "L", "XL"];
+const KIDS_SIZES = ["2Y", "3Y", "4Y", "5Y", "6Y", "7Y"];
 const COLORS = [
   { name: "Blush", hex: "#EFD3CE" },
   { name: "Cream", hex: "#F3ECDD" },
@@ -16,7 +17,8 @@ const COLORS = [
 ];
 
 export default function Collection() {
-  const { category = "girls" } = useParams();
+  const { category = "women" } = useParams();
+  const sizeOptions = category === "kids" ? KIDS_SIZES : ADULT_SIZES;
   const [products, setProducts] = useState<Product[]>([]);
   const [sort, setSort] = useState("newest");
   const [subFilter, setSubFilter] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export default function Collection() {
       </div>
 
       <h1 className="font-serif text-[26px] sm:text-[34px] text-ink capitalize mb-2">{category}</h1>
-      <p className="text-muted text-[14px] mb-6 sm:mb-10">Thoughtfully designed for every chapter of childhood.</p>
+      <p className="text-muted text-[14px] mb-6 sm:mb-10">Thoughtfully designed apparel, made to last.</p>
 
       <button
         onClick={() => setFiltersOpen((v) => !v)}
@@ -84,12 +86,12 @@ export default function Collection() {
             </div>
           </FilterGroup>
 
-          <FilterGroup title="Age">
+          <FilterGroup title="Size">
             <div className="space-y-2 text-[13px]">
-              {AGES.map((a) => (
-                <label key={a} className="flex items-center gap-2 cursor-pointer text-ink/80 hover:text-ink">
+              {sizeOptions.map((s) => (
+                <label key={s} className="flex items-center gap-2 cursor-pointer text-ink/80 hover:text-ink">
                   <input type="checkbox" className="accent-clay" />
-                  {a}
+                  {s}
                 </label>
               ))}
             </div>
