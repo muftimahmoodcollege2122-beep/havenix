@@ -4,6 +4,9 @@ import CollectionClient from "@/components/CollectionClient";
 import { api } from "@/lib/api";
 import type { Product } from "@/lib/types";
 
+// Fetches live product/order data — never prerender at build time.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {

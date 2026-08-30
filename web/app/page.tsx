@@ -10,6 +10,9 @@ import Newsletter from "@/components/Newsletter";
 import { api } from "@/lib/api";
 import type { Product } from "@/lib/types";
 
+// Fetches live product/order data — never prerender at build time.
+export const dynamic = "force-dynamic";
+
 const CATEGORIES = [
   { name: "Women", to: "/collections/women" },
   { name: "Men", to: "/collections/men" },

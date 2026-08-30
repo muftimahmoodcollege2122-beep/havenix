@@ -15,25 +15,32 @@ function getAuthToken(): string | null {
 
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getAuthToken();
-  const res = await fetch(`${BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    ...options,
-  });
-  const text = await res.text();
-  let data: unknown;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
   try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error(`Unexpected response from ${path}: ${text.slice(0, 200)}`);
+    const res = await fetch(`${BASE}${path}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      signal: controller.signal,
+      ...options,
+    });
+    const text = await res.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`Unexpected response from ${path}: ${text.slice(0, 200)}`);
+    }
+    if (!res.ok) {
+      const err = data as { error?: string };
+      throw new Error(err.error || "Request failed");
+    }
+    return data as T;
+  } finally {
+    clearTimeout(timeout);
   }
-  if (!res.ok) {
-    const err = data as { error?: string };
-    throw new Error(err.error || "Request failed");
-  }
-  return data as T;
 }
 
 export const api = {

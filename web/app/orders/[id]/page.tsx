@@ -4,6 +4,9 @@ import { api } from "@/lib/api";
 import type { Order } from "@/lib/types";
 import ProductImage from "@/components/ProductImage";
 
+// Fetches live product/order data — never prerender at build time.
+export const dynamic = "force-dynamic";
+
 const STAGES = ["Order Placed", "Processing", "Packed", "Shipped", "Delivered"];
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import SizeGuideClient from "@/components/SizeGuideClient";
 import { api } from "@/lib/api";
 
+// Fetches live product/order data — never prerender at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Size Guide",
   description: "Find your perfect Havenix fit with our women's, men's, and kids' size charts.",
