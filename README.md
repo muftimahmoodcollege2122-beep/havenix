@@ -1,25 +1,38 @@
-# Havenix — Children's Fashion E-commerce
+# Havenix — Apparel E-commerce
 
-Full-stack build: React + TypeScript (Vite) frontend, Node.js + TypeScript (Express) backend,
-PostgreSQL database. Matches the 10-page Havenix mockups: Homepage, Collection (Girls/Boys/Baby),
-Product, Cart, Checkout, Search, Account Dashboard, Size Guide/Child Profile, Order Tracking, Footer.
+Full-stack build: Next.js (App Router) storefront + admin panel, Node.js + TypeScript (Express)
+backend, PostgreSQL database. Departments: Women, Men, Kids, Accessories. Real customer auth,
+real payment checkout (JazzCash, EasyPaisa, card, bank transfer, COD, plus a mock gateway for
+local dev), and an admin panel for managing the catalog and stock.
 
 ## Structure
 
 ```
 havenix/
-├── client/     React + TypeScript + Tailwind (Vite)
+├── web/        Next.js (App Router) — storefront + admin panel
 └── server/     Node.js + TypeScript + Express + PostgreSQL (pg)
 ```
 
+The storefront was originally a Vite SPA (`client/`); it has been fully migrated to Next.js
+for server-rendered pages, per-page metadata, and a real sitemap. `client/` has been removed.
+
 ## Database
 
-Real Postgres schema in `server/src/db/schema.sql`:
-customers, addresses, children, products, product_images, product_variants, carts, cart_items,
-orders, order_items — matching the entity model from the original architecture doc.
+Postgres schema lives in `server/src/db/` as a series of migration files, applied in order by
+`npm run db:migrate`:
+
+- `schema.sql` — core entities: customers, addresses, products, product_images, product_variants,
+  carts, cart_items, orders, order_items
+- `002_full_schema.sql` — extended commerce schema (inventory, promotions, reviews, etc.)
+- `003_payments.sql` — payment status/method tracking on orders
+- `004_nullable_image.sql` — order line items no longer require an image
+- `005_customer_auth.sql` — customer `phone` + `marketing_opt_in` columns
+- `006_admin_uploads.sql` — stores admin-uploaded product images as binary data in Postgres
 
 Checkout runs inside a DB transaction: locks the variant rows, checks stock, inserts the order,
-decrements inventory, and clears the cart — or rolls back entirely on any failure.
+decrements inventory, and clears the cart — or rolls back entirely on any failure. The
+gateway-payment flow (`/api/payments/*`) creates the order as `unpaid` first and only decrements
+stock once the provider confirms payment (webhook or, in dev, the mock-complete endpoint).
 
 ## Run locally
 
@@ -32,60 +45,70 @@ decrements inventory, and clears the cart — or rolls back entirely on any fail
    cd server
    npm install
    export DATABASE_URL="postgresql://user:password@localhost:5432/havenix"
-   npm run db:migrate   # creates tables
+   npm run db:migrate   # creates/updates tables
    npm run db:seed      # loads demo products/customer/orders
    npm run dev
    ```
-3. Frontend (port 5173, proxies /api to :4000):
+3. Frontend (Next.js, port 3000):
    ```
-   cd client
+   cd web
+   cp .env.example .env.local   # point at the API from step 2
    npm install
    npm run dev
    ```
 
-Open http://localhost:5173
+Open http://localhost:3000. Admin panel is at `/admin/login` (key set via `ADMIN_KEY` on the
+server).
 
 ## Backend API
 
-- `GET  /api/products?category=girls`
+**Catalog / cart / orders**
+- `GET  /api/products?category=women|men|kids|accessories`
 - `GET  /api/products/:slug`
 - `GET  /api/search?q=dress`
 - `GET  /api/cart/:cartId`
-- `POST /api/cart/:cartId/items`          { productId, sku, qty }
-- `PATCH /api/cart/:cartId/items/:sku`    { qty }
-- `DELETE /api/cart/:cartId/items/:sku`
-- `GET  /api/account`
+- `POST /api/cart/:cartId/items` · `PATCH /api/cart/:cartId/items/:sku` · `DELETE /api/cart/:cartId/items/:sku`
 - `GET  /api/orders/:id`
-- `GET  /api/size-guide`
-- `POST /api/size-recommendation`         { heightCm, ageYears }
-- `POST /api/checkout`                    { cartId, items, subtotal, shipping, contact, address }
-- `GET  /api/health`                      { ok, db: "connected" | server returns 503 if DB is down }
+- `GET  /api/size-guide` · `POST /api/size-recommendation`
+- `POST /api/checkout` — cash-on-delivery / legacy direct-order path
+- `GET  /api/health`
 
-## Deploy on Railway
+**Customer auth** (JWT, `Authorization: Bearer <token>`)
+- `POST /api/auth/signup` · `POST /api/auth/login` · `GET /api/auth/me`
+- `GET  /api/account` (requires auth)
 
-This repo has **three pieces** to provision — a Postgres database and two services:
+**Payments** (real gateway checkout)
+- `POST /api/payments/checkout` — creates an unpaid order + starts a JazzCash/EasyPaisa/card/bank
+  transfer session
+- `GET  /api/payments/status/:orderId`
+- `POST /api/payments/webhook` — provider confirms payment (raw body, signature-verified)
+- `POST /api/payments/mock-complete` — dev-only stand-in for the webhook when `PAYMENT_PROVIDER=mock`
 
-1. **Add a PostgreSQL plugin** to your Railway project (New → Database → PostgreSQL). Railway
-   provisions it and exposes a `DATABASE_URL`.
-2. **Backend service** — Root Directory: `server`.
-   - Add env var `DATABASE_URL` — reference the Postgres plugin's `DATABASE_URL` (Railway lets you
-     link variables between services, or just copy the value).
-   - Deploys via `railway.json` (`npm run build && npm start`).
-   - After first deploy, run migration + seed once, either via Railway's shell/CLI in that service,
-     or locally with `DATABASE_URL` pointed at the Railway Postgres:
-     ```
-     npm run db:migrate
-     npm run db:seed
-     ```
-   - Note the generated public URL.
-3. **Frontend service** — Root Directory: `client`.
-   - Set env var `VITE_API_URL` to the backend's public URL (from step 2, no trailing slash).
-   - Deploys via `railway.json`. Redeploy after setting the env var — Vite bakes it in at build time.
+**Admin** (`x-admin-key` header, see `ADMIN_KEY` env var)
+- `POST /api/admin/login`
+- `GET  /api/admin/products` · `POST /api/admin/products` · `DELETE /api/admin/products/:id`
+- `PATCH /api/admin/variants/:sku/inventory`
+- `POST /api/admin/uploads` — multipart image upload (max 8MB, image types only)
+- `GET  /api/uploads/:id` — serves an uploaded image (public, cached)
+
+## Deploy
+
+**Backend — Railway.** Root Directory: `server`. Provision a Postgres plugin, set `DATABASE_URL`
+(link to the plugin), `ADMIN_KEY`, `JWT_SECRET`, `CLIENT_URL` (must point at the deployed `web/`
+app — payment redirects are built from it), and payment provider vars if not using the mock
+provider. `railway.json`'s start command runs migrate + seed + start automatically.
+
+**Frontend — Vercel (recommended) or any Next.js host.** Root Directory: `web`. Set:
+- `API_URL` — server URL, used for SSR fetches
+- `NEXT_PUBLIC_API_URL` — server URL, used for browser fetches
+- `NEXT_PUBLIC_SITE_URL` — this app's own public URL, used for sitemap/canonical tags
+
+See `web/README.md` for more detail on the Next.js migration and structure.
 
 ## Notes
 
-- Cart is tracked via a client-generated ID stored in localStorage — no login required yet.
+- Cart is tracked via a client-generated ID in localStorage; works for guests, and links to the
+  logged-in customer at checkout when authenticated.
 - Seed data includes SKUs with 0 inventory intentionally, to exercise out-of-stock handling.
-- Images are Unsplash placeholders — swap for real product photography.
-- Still not wired up: a CMS/admin panel, real payments, and customer login/auth. Ask for any of
-  these next and they'll be built the same way — properly, one piece at a time.
+- Product images: admin-uploaded ones are stored as binary data in Postgres and served via
+  `/api/uploads/:id`; external URLs are also supported.

@@ -64,5 +64,4 @@ sits outside that group with its own sidebar layout — so the storefront's head
 never leaks into the admin dashboard, and vice versa. Admin auth (`x-admin-key`) is
 completely separate from customer auth (JWT via AuthContext).
 
-Once this is verified against a live database, `web/` replaces `../client` entirely —
-`../client` can be retired.
+`../client` (the original Vite SPA) has been removed — this app is now the only frontend.
