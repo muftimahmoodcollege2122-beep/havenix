@@ -20,10 +20,11 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const trimmedKey = key.trim();
     try {
-      const ok = await adminApi.login(key);
+      const ok = await adminApi.login(trimmedKey);
       if (ok) {
-        setAdminKey(key);
+        setAdminKey(trimmedKey);
         router.push("/admin/products");
       } else {
         setError("Invalid admin key.");

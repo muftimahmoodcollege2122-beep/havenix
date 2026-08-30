@@ -26,7 +26,7 @@ const router = Router();
 
 router.post("/admin/login", (req, res) => {
   const { key } = req.body as { key?: string };
-  if (key && key === ADMIN_KEY) {
+  if (key && key.trim() === ADMIN_KEY) {
     return res.json({ ok: true });
   }
   res.status(401).json({ ok: false, error: "Invalid admin key" });
