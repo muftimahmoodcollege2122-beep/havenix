@@ -29,6 +29,11 @@ Requires the Express API (`../server`) running and reachable at the URLs in `.en
 - `NEXT_PUBLIC_API_URL` — used by the browser for client-side fetches (cart, checkout, account)
 - `NEXT_PUBLIC_SITE_URL` — used for sitemap/robots/canonical URLs
 
+**Important deployment note:** the Express server's own `CLIENT_URL` env var must point at
+*this* app's URL (not the old Vite app), since `payments.ts` builds the post-payment
+redirect (`${CLIENT_URL}/payments/return?orderId=...`) from it. If `CLIENT_URL` still points
+at the Vite app after cutover, payment redirects will land on the wrong frontend.
+
 ## Structure
 
 - `app/` — routes (App Router). Server components fetch data; interactive pieces are
@@ -44,8 +49,17 @@ The admin panel (`../client/src/admin`) stays on the Vite app for now — it's a
 tool with no SEO surface, so there's no benefit to migrating it, and it can move later
 without affecting the storefront.
 
+`/payments/mock-gateway` (the dev-only simulated payment gateway, used when
+`PAYMENT_PROVIDER=mock`) renders inside the normal site layout here, so it shows the
+Havenix header/footer above the simulated gateway card. In the Vite app it was a
+standalone full-screen route with no chrome. This is cosmetic only — the payment flow
+itself works identically — but if pixel-parity matters, it can be moved into a route
+group with its own root layout later.
+
 ## Status
 
-All 13 storefront routes are ported and pass `next build`. Once this is verified against
-a live database, it can replace `../client` as the primary storefront; `../client` can then
-be trimmed down to just the admin panel or retired entirely.
+All 13 storefront routes plus customer auth (login/signup) and full payment checkout
+(JazzCash, EasyPaisa, card, bank transfer, COD, mock gateway for dev) are ported and pass
+`next build`. Once this is verified against a live database, it can replace `../client` as
+the primary storefront; `../client` can then be trimmed down to just the admin panel or
+retired entirely.

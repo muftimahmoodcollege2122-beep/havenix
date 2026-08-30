@@ -6,16 +6,34 @@ const BASE =
     ? `${process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api`
     : `${process.env.NEXT_PUBLIC_API_URL || ""}/api`;
 
+const TOKEN_KEY = "havenix_customer_token";
+
+function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getAuthToken();
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     ...options,
   });
+  const text = await res.text();
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`Unexpected response from ${path}: ${text.slice(0, 200)}`);
+  }
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Request failed" }));
+    const err = data as { error?: string };
     throw new Error(err.error || "Request failed");
   }
-  return res.json();
+  return data as T;
 }
 
 export const api = {
@@ -36,4 +54,15 @@ export const api = {
   recommendSize: (heightCm: number, department: "women" | "men" | "kids" = "women") =>
     req(`/size-recommendation`, { method: "POST", body: JSON.stringify({ heightCm, department }) }),
   checkout: (body: unknown) => req(`/checkout`, { method: "POST", body: JSON.stringify(body) }),
+  initiatePayment: (body: unknown) => req(`/payments/checkout`, { method: "POST", body: JSON.stringify(body) }),
+  getPaymentStatus: (orderId: string) => req(`/payments/status/${orderId}`, { cache: "no-store" }),
+  mockCompletePayment: (reference: string, outcome: "success" | "failed") =>
+    req(`/payments/mock-complete`, { method: "POST", body: JSON.stringify({ reference, outcome }) }),
+  signup: (body: { name: string; email: string; password: string; phone?: string }) =>
+    req(`/auth/signup`, { method: "POST", body: JSON.stringify(body) }),
+  login: (body: { email: string; password: string }) =>
+    req(`/auth/login`, { method: "POST", body: JSON.stringify(body) }),
+  me: () => req(`/auth/me`, { cache: "no-store" }),
 };
+
+export { getAuthToken };

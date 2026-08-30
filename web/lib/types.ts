@@ -74,3 +74,11 @@ export interface FamilyProfile {
   heightCm: number;
   weightKg: number;
 }
+
+export interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  marketingOptIn: boolean;
+}

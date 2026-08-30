@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
@@ -16,6 +16,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import type { Order, FamilyProfile } from "@/lib/types";
 
 const NAV = [
@@ -39,15 +40,25 @@ interface AccountData {
 
 function AccountContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { customer, loading: authLoading, logout } = useAuth();
   const initialTab = searchParams.get("tab") || "dashboard";
   const [data, setData] = useState<AccountData | null>(null);
   const [active, setActive] = useState(initialTab);
 
   useEffect(() => {
-    api.getAccount().then((d) => setData(d as AccountData));
-  }, []);
+    if (!authLoading && !customer) {
+      router.push("/login?from=/account");
+    }
+  }, [authLoading, customer, router]);
 
-  if (!data) return <div className="max-w-[1440px] mx-auto px-6 py-20 text-center text-muted">Loading...</div>;
+  useEffect(() => {
+    if (customer) api.getAccount().then((d) => setData(d as AccountData));
+  }, [customer]);
+
+  if (authLoading || !customer || !data) {
+    return <div className="max-w-[1440px] mx-auto px-6 py-20 text-center text-muted">Loading...</div>;
+  }
 
   const initials = data.customer.name
     .split(" ")
@@ -80,7 +91,13 @@ function AccountContent() {
                 {n.label}
               </button>
             ))}
-            <button className="hidden md:flex w-full items-center gap-3 px-3 py-2.5 text-[13px] text-ink/60 hover:bg-paper rounded mt-4">
+            <button
+              onClick={() => {
+                logout();
+                router.push("/");
+              }}
+              className="hidden md:flex w-full items-center gap-3 px-3 py-2.5 text-[13px] text-ink/60 hover:bg-paper rounded mt-4"
+            >
               <LogOut size={15} />
               Logout
             </button>
