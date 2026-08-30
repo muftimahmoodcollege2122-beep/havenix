@@ -11,7 +11,8 @@ const STAGES = ["Order Placed", "Processing", "Packed", "Shipped", "Delivered"];
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return { title: `Order #${id}` };
+  // Private, per-customer order pages — never index these.
+  return { title: `Order #${id}`, robots: { index: false, follow: false } };
 }
 
 export default async function OrderTrackingPage({ params }: { params: Promise<{ id: string }> }) {

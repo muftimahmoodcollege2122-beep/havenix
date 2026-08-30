@@ -62,7 +62,7 @@ export default function ProductDetailClient({
                   onClick={() => setActiveImage(i)}
                   className={`w-16 h-20 shrink-0 overflow-hidden border ${activeImage === i ? "border-clay" : "border-line"}`}
                 >
-                  <ProductImage src={img} alt="" className="w-full h-full object-cover" />
+                  <ProductImage src={img} alt={`${product.name} — view ${i + 1}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -74,7 +74,13 @@ export default function ProductDetailClient({
               </span>
             )}
             <div className="aspect-[3/4] overflow-hidden bg-paper">
-              <ProductImage src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
+              <ProductImage
+                src={product.images[activeImage]}
+                alt={product.name}
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </div>

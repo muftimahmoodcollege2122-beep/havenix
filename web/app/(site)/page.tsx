@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, AtSign } from "lucide-react";
 import TrustStrip from "@/components/TrustStrip";
 import ProductCard from "@/components/ProductCard";
@@ -12,6 +13,20 @@ import type { Product } from "@/lib/types";
 
 // Fetches live product/order data — never prerender at build time.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: { absolute: "Havenix — Timeless Apparel for Women, Men & Kids" },
+  description:
+    "Shop premium, thoughtfully designed apparel for the whole family. Quality fabrics, timeless style, made to last. New arrivals weekly.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Havenix — Timeless Apparel for Women, Men & Kids",
+    description:
+      "Shop premium, thoughtfully designed apparel for the whole family. Quality fabrics, timeless style, made to last.",
+    url: "/",
+    type: "website",
+  },
+};
 
 const CATEGORIES = [
   { name: "Women", to: "/collections/women" },

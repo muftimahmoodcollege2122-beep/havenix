@@ -9,7 +9,12 @@ export async function generateMetadata({
   searchParams: Promise<{ q?: string }>;
 }): Promise<Metadata> {
   const { q = "" } = await searchParams;
-  return { title: q ? `Search: ${q}` : "Search" };
+  return {
+    title: q ? `Search: ${q}` : "Search",
+    // Search results pages are thin, infinitely-variable content that
+    // shouldn't compete with real category/product pages in the index.
+    robots: { index: false, follow: true },
+  };
 }
 
 export default async function SearchPage({
