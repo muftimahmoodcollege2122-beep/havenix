@@ -5,7 +5,20 @@ import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/lib/types";
 
-const SUBCATS = ["Dresses", "Tops", "Bottoms", "Sets", "Knitwear", "Outerwear", "Sleepwear"];
+const SUBCATS = [
+  "Dresses",
+  "Tops",
+  "Shirts",
+  "T-Shirts",
+  "Bottoms",
+  "Sets",
+  "Knitwear",
+  "Outerwear",
+  "Sleepwear",
+  "Eastern Wear",
+  "Western Wear",
+  "Rompers",
+];
 const ADULT_SIZES = ["XS", "S", "M", "L", "XL"];
 const KIDS_SIZES = ["2Y", "3Y", "4Y", "5Y", "6Y", "7Y"];
 const COLORS = [
@@ -19,14 +32,16 @@ const COLORS = [
 export default function CollectionClient({
   category,
   initialProducts,
+  initialSubFilter = null,
 }: {
   category: string;
   initialProducts: Product[];
+  initialSubFilter?: string | null;
 }) {
   const sizeOptions = category === "kids" ? KIDS_SIZES : ADULT_SIZES;
   const [products] = useState<Product[]>(initialProducts);
   const [sort, setSort] = useState("newest");
-  const [subFilter, setSubFilter] = useState<string | null>(null);
+  const [subFilter, setSubFilter] = useState<string | null>(initialSubFilter);
   const [colorFilter, setColorFilter] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -39,10 +54,11 @@ export default function CollectionClient({
     return list;
   }, [products, subFilter, colorFilter, sort]);
 
-  const availableSubcats = useMemo(
-    () => SUBCATS.filter((s) => products.some((p) => p.subCategory === s)),
-    [products]
-  );
+  const availableSubcats = useMemo(() => {
+    const present = SUBCATS.filter((s) => products.some((p) => p.subCategory === s));
+    if (subFilter && !present.includes(subFilter)) present.push(subFilter);
+    return present;
+  }, [products, subFilter]);
 
   return (
     <>

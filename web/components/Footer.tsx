@@ -27,24 +27,19 @@ export default function Footer() {
           { label: "Sale", to: "/sale" },
         ]} />
         <FooterCol title="Customer Care" links={[
-          { label: "Shipping & Delivery", to: "/" },
-          { label: "Returns & Exchanges", to: "/" },
+          { label: "Shipping & Delivery", to: "/shipping-returns" },
+          { label: "Returns & Exchanges", to: "/shipping-returns" },
           { label: "Size Guide", to: "/size-guide" },
-          { label: "FAQ", to: "/" },
-          { label: "Track Order", to: "/orders/HV-10482" },
+          { label: "FAQ", to: "/help" },
         ]} />
         <FooterCol title="About" links={[
-          { label: "Our Story", to: "/" },
-          { label: "Sustainability", to: "/" },
-          { label: "Journal", to: "/" },
-          { label: "Careers", to: "/" },
-          { label: "Contact Us", to: "/" },
+          { label: "Our Story", to: "/about" },
+          { label: "Contact Us", to: "/contact" },
         ]} />
         <FooterCol title="Info" links={[
-          { label: "Collections", to: "/" },
-          { label: "Gift Cards", to: "/" },
-          { label: "Privacy Policy", to: "/" },
-          { label: "Terms & Conditions", to: "/" },
+          { label: "Collections", to: "/collections" },
+          { label: "Privacy Policy", to: "/privacy" },
+          { label: "Terms & Conditions", to: "/terms" },
         ]} />
       </div>
 

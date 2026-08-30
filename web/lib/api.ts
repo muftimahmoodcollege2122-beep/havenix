@@ -1,10 +1,21 @@
 // Server components can reach the API container directly; the browser needs
 // a public URL. Set NEXT_PUBLIC_API_URL for the browser and API_URL (falls
 // back to the public one) for server-side fetches.
+function normalizeApiOrigin(raw: string): string {
+  const trimmed = raw.trim().replace(/\/+$/, "");
+  if (!trimmed) return "";
+  // A bare domain (e.g. "myapp.up.railway.app") is a valid relative URL, so
+  // fetch() silently resolves it against the current page's own origin
+  // instead of erroring — auto-add the scheme so this can't fail silently.
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 const BASE =
   typeof window === "undefined"
-    ? `${process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api`
-    : `${process.env.NEXT_PUBLIC_API_URL || ""}/api`;
+    ? `${normalizeApiOrigin(process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000")}/api`
+    : `${normalizeApiOrigin(process.env.NEXT_PUBLIC_API_URL || "")}/api`;
+
+export { BASE };
 
 const TOKEN_KEY = "havenix_customer_token";
 
@@ -13,10 +24,22 @@ function getAuthToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getAuthToken();
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  // Server-side (SSR) requests get more slack — a cold-started backend
+  // (e.g. Railway free tier waking up) can take a while to answer the
+  // first request after idling.
+  const timeoutMs = typeof window === "undefined" ? 15000 : 8000;
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`${BASE}${path}`, {
       headers: {
@@ -31,19 +54,26 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
     try {
       data = JSON.parse(text);
     } catch {
-      throw new Error(`Unexpected response from ${path}: ${text.slice(0, 200)}`);
+      throw new ApiError(`Unexpected response from ${path}: ${text.slice(0, 200)}`, res.status);
     }
     if (!res.ok) {
       const err = data as { error?: string };
-      throw new Error(err.error || "Request failed");
+      throw new ApiError(err.error || "Request failed", res.status);
     }
     return data as T;
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    // Network failure, timeout/abort, DNS error, etc. — not an HTTP response at all.
+    throw new ApiError(err instanceof Error ? err.message : "Network request failed", 0);
   } finally {
     clearTimeout(timeout);
   }
 }
 
+export { ApiError };
+
 export const api = {
+  health: () => req(`/health`, { cache: "no-store" }),
   getProducts: (category?: string) =>
     req(`/products${category ? `?category=${category}` : ""}`, { next: { revalidate: 60 } } as RequestInit),
   getProduct: (slug: string) => req(`/products/${slug}`, { next: { revalidate: 60 } } as RequestInit),
@@ -70,6 +100,8 @@ export const api = {
   login: (body: { email: string; password: string }) =>
     req(`/auth/login`, { method: "POST", body: JSON.stringify(body) }),
   me: () => req(`/auth/me`, { cache: "no-store" }),
+  submitContact: (body: { name: string; email: string; subject: string; message: string }) =>
+    req(`/contact`, { method: "POST", body: JSON.stringify(body) }),
 };
 
 export { getAuthToken };

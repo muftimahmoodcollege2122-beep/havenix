@@ -46,8 +46,8 @@ export default function AdminLoginPage() {
       } else {
         setError("Invalid admin key.");
       }
-    } catch {
-      setError("Could not reach the server.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reach the server.");
     } finally {
       setLoading(false);
     }
