@@ -32,6 +32,20 @@ router.post("/admin/login", (req, res) => {
   res.status(401).json({ ok: false, error: "Invalid admin key" });
 });
 
+// Temporary diagnostic route — reveals metadata only, never the actual key value,
+// so it's safe to hit directly in a browser while troubleshooting a login mismatch.
+router.get("/admin/debug-key", (_req, res) => {
+  const raw = process.env.ADMIN_KEY;
+  res.json({
+    envVarIsSet: typeof raw === "string" && raw.length > 0,
+    usingFallbackDefault: !raw,
+    rawLength: raw ? raw.length : 0,
+    trimmedLength: ADMIN_KEY.length,
+    hasLeadingOrTrailingWhitespace: raw ? raw !== raw.trim() : false,
+    startsOrEndsWithQuote: raw ? /^["']|["']$/.test(raw) : false,
+  });
+});
+
 router.use("/admin", adminAuth);
 
 router.get("/admin/products", async (_req, res) => {
