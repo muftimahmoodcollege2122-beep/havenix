@@ -1,11 +1,22 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ProductDetailClient from "@/components/ProductDetailClient";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import type { Product } from "@/lib/types";
 
 // Fetches live product/order data — never prerender at build time.
 export const dynamic = "force-dynamic";
+
+async function fetchProduct(slug: string): Promise<Product | null> {
+  try {
+    return (await api.getProduct(slug)) as Product;
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return null;
+    // A real failure (API unreachable, 500, timeout) — don't lie and say
+    // "not found"; let it surface to the route's error boundary instead.
+    throw err;
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -13,7 +24,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = (await api.getProduct(slug).catch(() => null)) as Product | null;
+  const product = await fetchProduct(slug).catch(() => null);
   if (!product) return { title: "Product Not Found" };
   return {
     title: product.name,
@@ -32,7 +43,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = (await api.getProduct(slug).catch(() => null)) as Product | null;
+  const product = await fetchProduct(slug);
   if (!product) notFound();
 
   const categoryProducts = (await api.getProducts(product.category).catch(() => [])) as Product[];

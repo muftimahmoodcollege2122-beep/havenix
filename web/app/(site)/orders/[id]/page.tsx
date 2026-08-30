@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Check, Truck } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import type { Order } from "@/lib/types";
 import ProductImage from "@/components/ProductImage";
 
@@ -16,7 +16,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function OrderTrackingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const order = (await api.getOrder(id).catch(() => null)) as Order | null;
+  let order: Order | null;
+  try {
+    order = (await api.getOrder(id)) as Order;
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) {
+      notFound();
+    }
+    throw err; // real failure — let the route's error boundary handle it
+  }
   if (!order) notFound();
 
   const currentIndex = STAGES.indexOf(order.status === "Processing" ? "Processing" : order.status);

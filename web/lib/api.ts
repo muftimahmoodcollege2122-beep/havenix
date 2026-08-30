@@ -22,6 +22,14 @@ function getAuthToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getAuthToken();
   const controller = new AbortController();
@@ -40,17 +48,23 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
     try {
       data = JSON.parse(text);
     } catch {
-      throw new Error(`Unexpected response from ${path}: ${text.slice(0, 200)}`);
+      throw new ApiError(`Unexpected response from ${path}: ${text.slice(0, 200)}`, res.status);
     }
     if (!res.ok) {
       const err = data as { error?: string };
-      throw new Error(err.error || "Request failed");
+      throw new ApiError(err.error || "Request failed", res.status);
     }
     return data as T;
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    // Network failure, timeout/abort, DNS error, etc. — not an HTTP response at all.
+    throw new ApiError(err instanceof Error ? err.message : "Network request failed", 0);
   } finally {
     clearTimeout(timeout);
   }
 }
+
+export { ApiError };
 
 export const api = {
   getProducts: (category?: string) =>
