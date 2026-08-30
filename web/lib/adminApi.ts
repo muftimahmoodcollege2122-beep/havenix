@@ -1,7 +1,16 @@
+function normalizeApiOrigin(raw: string): string {
+  const trimmed = raw.trim().replace(/\/+$/, "");
+  if (!trimmed) return "";
+  // A bare domain (e.g. "myapp.up.railway.app") is a valid relative URL, so
+  // fetch() silently resolves it against the current page's own origin
+  // instead of erroring — auto-add the scheme so this can't fail silently.
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 const BASE =
   typeof window === "undefined"
-    ? `${process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api`
-    : `${process.env.NEXT_PUBLIC_API_URL || ""}/api`;
+    ? `${normalizeApiOrigin(process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000")}/api`
+    : `${normalizeApiOrigin(process.env.NEXT_PUBLIC_API_URL || "")}/api`;
 
 export { BASE };
 
@@ -97,13 +106,19 @@ export const adminApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key }),
     });
-    if (!res.ok) return false;
-    try {
-      await parseJsonOrDiagnose(res, url);
-      return true;
-    } catch {
-      return false;
+    // Only a real 401 from our own API means "wrong key". Anything else
+    // (404 from a misconfigured URL, 500, network error) is a connectivity
+    // problem and should say so instead of misleadingly claiming bad
+    // credentials — parseJsonOrDiagnose throws a specific message for those.
+    if (res.status === 401) return false;
+    const data = await parseJsonOrDiagnose(res, url);
+    if (!res.ok) {
+      if (data && typeof data.error === "string" && data.error.toLowerCase().includes("invalid")) {
+        return false;
+      }
+      throw new Error(data?.error || `Unexpected ${res.status} response from the admin API.`);
     }
+    return true;
   },
   listProducts: () => req<any[]>(`/admin/products`),
   createProduct: (input: AdminProductInput) =>

@@ -1,10 +1,19 @@
 // Server components can reach the API container directly; the browser needs
 // a public URL. Set NEXT_PUBLIC_API_URL for the browser and API_URL (falls
 // back to the public one) for server-side fetches.
+function normalizeApiOrigin(raw: string): string {
+  const trimmed = raw.trim().replace(/\/+$/, "");
+  if (!trimmed) return "";
+  // A bare domain (e.g. "myapp.up.railway.app") is a valid relative URL, so
+  // fetch() silently resolves it against the current page's own origin
+  // instead of erroring — auto-add the scheme so this can't fail silently.
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 const BASE =
   typeof window === "undefined"
-    ? `${process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api`
-    : `${process.env.NEXT_PUBLIC_API_URL || ""}/api`;
+    ? `${normalizeApiOrigin(process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000")}/api`
+    : `${normalizeApiOrigin(process.env.NEXT_PUBLIC_API_URL || "")}/api`;
 
 const TOKEN_KEY = "havenix_customer_token";
 
