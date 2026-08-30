@@ -10,6 +10,7 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string, phone?: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshMe: () => Promise<void>;
 }
 
 const TOKEN_KEY = "havenix_customer_token";
@@ -72,8 +73,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCustomer(null);
   };
 
+  const refreshMe = async () => {
+    if (!getToken()) return;
+    const data = (await api.me()) as { customer: Customer };
+    setCustomer(data.customer);
+  };
+
   return (
-    <AuthContext.Provider value={{ customer, loading, signup, login, logout }}>
+    <AuthContext.Provider value={{ customer, loading, signup, login, logout, refreshMe }}>
       {children}
     </AuthContext.Provider>
   );
