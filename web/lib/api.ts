@@ -70,6 +70,8 @@ export const api = {
   login: (body: { email: string; password: string }) =>
     req(`/auth/login`, { method: "POST", body: JSON.stringify(body) }),
   me: () => req(`/auth/me`, { cache: "no-store" }),
+  submitContact: (body: { name: string; email: string; subject: string; message: string }) =>
+    req(`/contact`, { method: "POST", body: JSON.stringify(body) }),
 };
 
 export { getAuthToken };
