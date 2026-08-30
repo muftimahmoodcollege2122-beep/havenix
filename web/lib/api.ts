@@ -33,7 +33,11 @@ class ApiError extends Error {
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getAuthToken();
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  // Server-side (SSR) requests get more slack — a cold-started backend
+  // (e.g. Railway free tier waking up) can take a while to answer the
+  // first request after idling.
+  const timeoutMs = typeof window === "undefined" ? 15000 : 8000;
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`${BASE}${path}`, {
       headers: {
