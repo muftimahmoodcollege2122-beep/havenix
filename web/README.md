@@ -43,23 +43,26 @@ at the Vite app after cutover, payment redirects will land on the wrong frontend
 - `lib/api.ts` — API client; picks the right base URL for server vs. browser calls
 - `lib/types.ts` — shared types, ported from `../client/src/types`
 
-## What's intentionally not migrated yet
-
-The admin panel (`../client/src/admin`) stays on the Vite app for now — it's a logged-in
-tool with no SEO surface, so there's no benefit to migrating it, and it can move later
-without affecting the storefront.
+## What's intentionally different from the Vite version
 
 `/payments/mock-gateway` (the dev-only simulated payment gateway, used when
-`PAYMENT_PROVIDER=mock`) renders inside the normal site layout here, so it shows the
-Havenix header/footer above the simulated gateway card. In the Vite app it was a
-standalone full-screen route with no chrome. This is cosmetic only — the payment flow
-itself works identically — but if pixel-parity matters, it can be moved into a route
-group with its own root layout later.
+`PAYMENT_PROVIDER=mock`) renders inside the storefront layout here, so it shows the
+Havenix header/footer above the simulated gateway card instead of being a standalone
+full-screen route like in the Vite app. Cosmetic only — the payment flow itself works
+identically.
 
 ## Status
 
-All 13 storefront routes plus customer auth (login/signup) and full payment checkout
-(JazzCash, EasyPaisa, card, bank transfer, COD, mock gateway for dev) are ported and pass
-`next build`. Once this is verified against a live database, it can replace `../client` as
-the primary storefront; `../client` can then be trimmed down to just the admin panel or
-retired entirely.
+Full migration complete: all storefront routes, customer auth (login/signup), full
+payment checkout (JazzCash, EasyPaisa, card, bank transfer, COD, mock gateway for dev),
+and the admin panel (`/admin/login`, `/admin/products`, add/edit product with image
+upload, inventory editing) are ported and pass `next build`.
+
+Admin routes are structurally isolated from the storefront: `app/(site)/` is a route
+group holding the public pages (cart, header, footer, customer auth), while `app/admin/`
+sits outside that group with its own sidebar layout — so the storefront's header/cart
+never leaks into the admin dashboard, and vice versa. Admin auth (`x-admin-key`) is
+completely separate from customer auth (JWT via AuthContext).
+
+Once this is verified against a live database, `web/` replaces `../client` entirely —
+`../client` can be retired.
