@@ -3,6 +3,8 @@ const BASE =
     ? `${process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api`
     : `${process.env.NEXT_PUBLIC_API_URL || ""}/api`;
 
+export { BASE };
+
 const STORAGE_KEY = "havenix_admin_key";
 
 export function getAdminKey(): string | null {
@@ -131,4 +133,6 @@ export const adminApi = {
     }
     return data.url.startsWith("http") ? data.url : `${BASE.replace(/\/api$/, "")}${data.url}`;
   },
+  // Temporary — safe diagnostic, reveals no secret values. See routes/admin.ts.
+  debugKeyCheck: () => req<Record<string, unknown>>(`/admin/debug-key`),
 };

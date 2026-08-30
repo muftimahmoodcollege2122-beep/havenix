@@ -2,13 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { adminApi, setAdminKey, getAdminKey } from "@/lib/adminApi";
+import { adminApi, setAdminKey, getAdminKey, BASE } from "@/lib/adminApi";
 
 export default function AdminLoginPage() {
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [diagnostics, setDiagnostics] = useState<Record<string, unknown> | null>(null);
+  const [diagnosticsError, setDiagnosticsError] = useState("");
+  const [checkingDiagnostics, setCheckingDiagnostics] = useState(false);
   const router = useRouter();
+
+  const runDiagnostics = async () => {
+    setCheckingDiagnostics(true);
+    setDiagnosticsError("");
+    setDiagnostics(null);
+    try {
+      const result = await adminApi.debugKeyCheck();
+      setDiagnostics(result);
+    } catch (err) {
+      setDiagnosticsError(err instanceof Error ? err.message : "Could not reach the server.");
+    } finally {
+      setCheckingDiagnostics(false);
+    }
+  };
 
   useEffect(() => {
     if (getAdminKey()) {
@@ -63,6 +80,26 @@ export default function AdminLoginPage() {
             {loading ? "Checking..." : "Sign In"}
           </button>
         </form>
+
+        <div className="mt-6 bg-cream/10 border border-cream/20 rounded-sm p-4">
+          <p className="text-cream/70 text-[11px] mb-2">
+            API URL this page is using: <span className="text-clay break-all">{BASE}</span>
+          </p>
+          <button
+            type="button"
+            onClick={runDiagnostics}
+            disabled={checkingDiagnostics}
+            className="text-[12px] text-clay underline underline-offset-2 disabled:opacity-50"
+          >
+            {checkingDiagnostics ? "Checking..." : "Run connection diagnostics"}
+          </button>
+          {diagnosticsError && <p className="text-rose text-[12px] mt-2">{diagnosticsError}</p>}
+          {diagnostics && (
+            <pre className="text-[11px] text-cream/80 mt-2 whitespace-pre-wrap break-all">
+              {JSON.stringify(diagnostics, null, 2)}
+            </pre>
+          )}
+        </div>
       </div>
     </div>
   );
