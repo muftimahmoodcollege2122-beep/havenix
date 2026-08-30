@@ -38,7 +38,7 @@ app.get("/api/health", async (_req, res) => {
 });
 
 // Any request that didn't match a real route (typo'd path, stray slash from a
-// misconfigured VITE_API_URL, wrong method, etc.) gets JSON back — never
+// misconfigured NEXT_PUBLIC_API_URL, wrong method, etc.) gets JSON back — never
 // Express's default HTML 404 page, which is what turns into a confusing
 // "Unexpected token '<'" error on the client.
 app.use((req, res) => {
