@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* Self-hosted fonts (via @fontsource) — no external network call at build
+   or runtime, unlike next/font/google which fetches from fonts.googleapis.com
+   at build time and can fail if that's unreachable. */
+@import "@fontsource/cormorant-garamond/400.css";
+@import "@fontsource/cormorant-garamond/500.css";
+@import "@fontsource/cormorant-garamond/600.css";
+@import "@fontsource/cormorant-garamond/700.css";
+@import "@fontsource/cormorant-garamond/400-italic.css";
+@import "@fontsource/manrope/400.css";
+@import "@fontsource/manrope/500.css";
+@import "@fontsource/manrope/600.css";
+@import "@fontsource/manrope/700.css";
+
+:root {
+  --font-cormorant: "Cormorant Garamond";
+  --font-manrope: "Manrope";
+}
+
 @theme {
   --color-cream: #FBF7F2;
   --color-paper: #F7F2EC;
