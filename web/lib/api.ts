@@ -15,6 +15,8 @@ const BASE =
     ? `${normalizeApiOrigin(process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000")}/api`
     : `${normalizeApiOrigin(process.env.NEXT_PUBLIC_API_URL || "")}/api`;
 
+export { BASE };
+
 const TOKEN_KEY = "havenix_customer_token";
 
 function getAuthToken(): string | null {
@@ -71,6 +73,7 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
 export { ApiError };
 
 export const api = {
+  health: () => req(`/health`, { cache: "no-store" }),
   getProducts: (category?: string) =>
     req(`/products${category ? `?category=${category}` : ""}`, { next: { revalidate: 60 } } as RequestInit),
   getProduct: (slug: string) => req(`/products/${slug}`, { next: { revalidate: 60 } } as RequestInit),
