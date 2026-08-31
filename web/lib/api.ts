@@ -76,7 +76,7 @@ export const api = {
   health: () => req(`/health`, { cache: "no-store" }),
   getProducts: (category?: string) =>
     req(`/products${category ? `?category=${category}` : ""}`, { next: { revalidate: 60 } } as RequestInit),
-  getProduct: (slug: string) => req(`/products/${slug}`, { next: { revalidate: 60 } } as RequestInit),
+  getProduct: (slug: string) => req(`/products/${slug}`, { cache: "no-store" }),
   search: (q: string) => req(`/search?q=${encodeURIComponent(q)}`, { cache: "no-store" }),
   getCart: (cartId: string) => req(`/cart/${cartId}`, { cache: "no-store" }),
   addToCart: (cartId: string, body: { productId: string; sku: string; qty?: number }) =>
@@ -102,6 +102,10 @@ export const api = {
   me: () => req(`/auth/me`, { cache: "no-store" }),
   submitContact: (body: { name: string; email: string; subject: string; message: string }) =>
     req(`/contact`, { method: "POST", body: JSON.stringify(body) }),
+  getReviews: (slug: string) => req(`/products/${slug}/reviews`, { cache: "no-store" }),
+  submitReview: (slug: string, body: { rating: number; title?: string; body?: string }) =>
+    req(`/products/${slug}/reviews`, { method: "POST", body: JSON.stringify(body) }),
+  deleteReview: (id: string) => req(`/reviews/${id}`, { method: "DELETE" }),
 };
 
 export { getAuthToken };
