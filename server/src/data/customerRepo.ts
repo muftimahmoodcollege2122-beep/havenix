@@ -7,6 +7,8 @@ export interface CustomerProfile {
   email: string;
   phone: string | null;
   marketingOptIn: boolean;
+  emailVerified: boolean;
+  phoneVerified: boolean;
 }
 
 export async function signupCustomer(name: string, email: string, password: string, phone?: string) {
@@ -21,7 +23,8 @@ export async function signupCustomer(name: string, email: string, password: stri
   const { rows } = await pool.query(
     `INSERT INTO customers (name, email, password_hash, phone)
      VALUES ($1,$2,$3,$4)
-     RETURNING id, name, email, phone, marketing_opt_in AS "marketingOptIn"`,
+     RETURNING id, name, email, phone, marketing_opt_in AS "marketingOptIn",
+               email_verified AS "emailVerified", phone_verified AS "phoneVerified"`,
     [name.trim(), email.toLowerCase().trim(), passwordHash, phone || null]
   );
   return rows[0] as CustomerProfile;
@@ -29,7 +32,8 @@ export async function signupCustomer(name: string, email: string, password: stri
 
 export async function loginCustomer(email: string, password: string) {
   const { rows } = await pool.query(
-    `SELECT id, name, email, phone, password_hash AS "passwordHash", marketing_opt_in AS "marketingOptIn"
+    `SELECT id, name, email, phone, password_hash AS "passwordHash", marketing_opt_in AS "marketingOptIn",
+            email_verified AS "emailVerified", phone_verified AS "phoneVerified"
      FROM customers WHERE email = $1`,
     [email.toLowerCase().trim()]
   );
@@ -47,10 +51,24 @@ export async function loginCustomer(email: string, password: string) {
 
 export async function getCustomerProfile(id: string): Promise<CustomerProfile | null> {
   const { rows } = await pool.query(
-    `SELECT id, name, email, phone, marketing_opt_in AS "marketingOptIn" FROM customers WHERE id = $1`,
+    `SELECT id, name, email, phone, marketing_opt_in AS "marketingOptIn",
+            email_verified AS "emailVerified", phone_verified AS "phoneVerified"
+     FROM customers WHERE id = $1`,
     [id]
   );
   return rows[0] || null;
+}
+
+export async function markEmailVerified(id: string) {
+  await pool.query(`UPDATE customers SET email_verified = true WHERE id = $1`, [id]);
+}
+
+export async function markPhoneVerified(id: string, phone?: string) {
+  if (phone) {
+    await pool.query(`UPDATE customers SET phone = $2, phone_verified = true WHERE id = $1`, [id, phone]);
+  } else {
+    await pool.query(`UPDATE customers SET phone_verified = true WHERE id = $1`, [id]);
+  }
 }
 
 export async function updateCustomerContact(id: string, patch: { phone?: string | null; name?: string }) {

@@ -100,6 +100,13 @@ export const api = {
   login: (body: { email: string; password: string }) =>
     req(`/auth/login`, { method: "POST", body: JSON.stringify(body) }),
   me: () => req(`/auth/me`, { cache: "no-store" }),
+  sendEmailOtp: () => req(`/auth/verify/email/send`, { method: "POST" }),
+  confirmEmailOtp: (code: string) =>
+    req(`/auth/verify/email/confirm`, { method: "POST", body: JSON.stringify({ code }) }),
+  sendPhoneOtp: (phone: string) =>
+    req(`/auth/verify/phone/send`, { method: "POST", body: JSON.stringify({ phone }) }),
+  confirmPhoneOtp: (code: string, phone?: string) =>
+    req(`/auth/verify/phone/confirm`, { method: "POST", body: JSON.stringify({ code, phone }) }),
   submitContact: (body: { name: string; email: string; subject: string; message: string }) =>
     req(`/contact`, { method: "POST", body: JSON.stringify(body) }),
   getReviews: (slug: string) => req(`/products/${slug}/reviews`, { cache: "no-store" }),

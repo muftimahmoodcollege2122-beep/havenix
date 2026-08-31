@@ -101,4 +101,6 @@ export interface Customer {
   email: string;
   phone: string | null;
   marketingOptIn: boolean;
+  emailVerified: boolean;
+  phoneVerified: boolean;
 }
