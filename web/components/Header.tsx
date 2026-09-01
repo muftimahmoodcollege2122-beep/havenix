@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import {
   Search,
   Heart,
@@ -18,6 +19,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useCartFx } from "@/context/CartFxContext";
 import { useAuth } from "@/context/AuthContext";
 
 const NAV = [
@@ -62,11 +64,26 @@ const DEPARTMENTS: DeptGroup[] = [
 export default function Header() {
   const { cart } = useCart();
   const { customer } = useAuth();
+  const { registerBagIcon, bumpSignal } = useCartFx();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const bagIconRef = useRef<HTMLAnchorElement | null>(null);
+  const bagControls = useAnimation();
+
+  useEffect(() => {
+    registerBagIcon(bagIconRef.current);
+  }, [registerBagIcon]);
+
+  useEffect(() => {
+    if (bumpSignal === 0) return;
+    bagControls.start({
+      scale: [1, 1.35, 0.9, 1.08, 1],
+      transition: { duration: 0.55, ease: "easeInOut", times: [0, 0.3, 0.55, 0.8, 1] },
+    });
+  }, [bumpSignal, bagControls]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -133,13 +150,29 @@ export default function Header() {
           <Link href="/account?tab=wishlist" aria-label="Wishlist" className="hidden sm:block hover:text-clay transition-colors">
             <Heart size={19} />
           </Link>
-          <Link href="/cart" aria-label="Cart" className="relative hover:text-clay transition-colors">
-            <ShoppingBag size={19} />
-            {cart.itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-clay text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-                {cart.itemCount}
-              </span>
-            )}
+          <Link
+            href="/cart"
+            aria-label="Cart"
+            ref={bagIconRef}
+            className="relative hover:text-clay transition-colors inline-block"
+          >
+            <motion.span animate={bagControls} className="inline-block">
+              <ShoppingBag size={19} />
+            </motion.span>
+            <AnimatePresence mode="popLayout" initial={false}>
+              {cart.itemCount > 0 && (
+                <motion.span
+                  key={cart.itemCount}
+                  initial={{ scale: 0.4, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.4, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                  className="absolute -top-2 -right-2 bg-clay text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center"
+                >
+                  {cart.itemCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Link>
         </div>
       </div>

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart, Star, ChevronDown, ShieldCheck, RefreshCw, Award } from "lucide-react";
+import { motion, useAnimation, AnimatePresence } from "framer-motion";
+import { Heart, Star, ChevronDown, ShieldCheck, RefreshCw, Award, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useCartFx } from "@/context/CartFxContext";
 import ProductCard from "@/components/ProductCard";
 import ProductImage from "@/components/ProductImage";
 import type { Product } from "@/lib/types";
@@ -18,6 +20,7 @@ export default function ProductDetailClient({
 }) {
   const router = useRouter();
   const { addItem, loading } = useCart();
+  const { flyToBag } = useCartFx();
   const [activeImage, setActiveImage] = useState(0);
   const firstVariant = product.variants[0];
   const [color, setColor] = useState<string | null>(firstVariant?.color || null);
@@ -25,6 +28,8 @@ export default function ProductDetailClient({
   const [openSection, setOpenSection] = useState<string | null>("description");
   const [added, setAdded] = useState(false);
   const [error, setError] = useState("");
+  const imageRef = useRef<HTMLDivElement | null>(null);
+  const imageControls = useAnimation();
 
   const colors = [...new Set(product.variants.map((v) => v.color))];
   const sizesForColor = product.variants.filter((v) => v.color === color);
@@ -34,6 +39,16 @@ export default function ProductDetailClient({
   const handleAddToBag = async () => {
     if (!selectedVariant) return;
     setError("");
+
+    // Product image shrinks slightly, then a clone travels toward the bag icon.
+    imageControls.start({
+      scale: [1, 0.94, 1],
+      transition: { duration: 0.35, ease: "easeOut" },
+    });
+    if (imageRef.current) {
+      flyToBag(imageRef.current, product.images[activeImage]);
+    }
+
     try {
       await addItem(product.id, selectedVariant.sku, 1);
       setAdded(true);
@@ -73,7 +88,7 @@ export default function ProductDetailClient({
                 New Arrival
               </span>
             )}
-            <div className="aspect-[3/4] overflow-hidden bg-paper">
+            <motion.div ref={imageRef} animate={imageControls} className="aspect-[3/4] overflow-hidden bg-paper">
               <ProductImage
                 src={product.images[activeImage]}
                 alt={product.name}
@@ -81,7 +96,7 @@ export default function ProductDetailClient({
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="w-full h-full object-cover"
               />
-            </div>
+            </motion.div>
           </div>
         </div>
 
@@ -145,13 +160,38 @@ export default function ProductDetailClient({
           {outOfStock && <div className="text-clay text-sm mb-3">This size is currently out of stock.</div>}
 
           <div className="flex gap-3 mb-8">
-            <button
+            <motion.button
               onClick={handleAddToBag}
               disabled={loading || outOfStock || !selectedVariant}
-              className="flex-1 bg-espresso text-cream py-4 text-[13px] tracking-widest uppercase hover:bg-ink transition-colors disabled:opacity-50"
+              whileTap={{ scale: 0.96 }}
+              transition={{ duration: 0.12 }}
+              className="flex-1 bg-espresso text-cream py-4 text-[13px] tracking-widest uppercase hover:bg-ink transition-colors disabled:opacity-50 overflow-hidden relative"
             >
-              {added ? "Added to Bag ✓" : outOfStock ? "Out of Stock" : "Add to Bag"}
-            </button>
+              <AnimatePresence mode="wait" initial={false}>
+                {added ? (
+                  <motion.span
+                    key="added"
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <Check size={15} /> Added to Bag
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="idle"
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {outOfStock ? "Out of Stock" : "Add to Bag"}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
             <button className="w-14 border border-line flex items-center justify-center hover:border-clay transition-colors">
               <Heart size={18} />
             </button>
