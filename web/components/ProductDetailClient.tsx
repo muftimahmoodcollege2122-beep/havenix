@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { Heart, Star, ChevronDown, ShieldCheck, RefreshCw, Award, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -19,7 +18,6 @@ export default function ProductDetailClient({
   product: Product;
   related: Product[];
 }) {
-  const router = useRouter();
   const { addItem, loading } = useCart();
   const { flyToBag } = useCartFx();
   const [activeImage, setActiveImage] = useState(0);
@@ -200,7 +198,15 @@ export default function ProductDetailClient({
             </button>
           </div>
           {added && (
-            <button onClick={() => router.push("/cart")} className="text-[12px] text-clay underline underline-offset-2 -mt-6 mb-8 block">
+            <button
+              onClick={() => {
+                // See Header.tsx bag icon for why this is a hard navigation
+                // rather than router.push — soft nav from a dynamic product
+                // page has been observed serving stale cart-page content.
+                window.location.href = "/cart";
+              }}
+              className="text-[12px] text-clay underline underline-offset-2 -mt-6 mb-8 block"
+            >
               View Bag
             </button>
           )}

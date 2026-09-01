@@ -154,6 +154,15 @@ export default function Header() {
             href="/cart"
             aria-label="Cart"
             ref={bagIconRef}
+            prefetch={false}
+            onClick={(e) => {
+              // Client-side soft navigation to /cart has been observed serving
+              // stale cached content from whatever dynamic route (e.g. a
+              // product page) was visited beforehand. A real navigation
+              // guarantees the cart page's actual current content renders.
+              e.preventDefault();
+              window.location.href = "/cart";
+            }}
             className="relative hover:text-clay transition-colors inline-block"
           >
             <motion.span animate={bagControls} className="inline-block">
