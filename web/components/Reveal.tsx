@@ -1,45 +1,42 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode, type ElementType } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import type { ReactNode, ElementType } from "react";
 
 export default function Reveal({
   children,
   delay = 0,
   className = "",
-  as: Tag = "div",
+  as = "div",
+  y = 22,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
   as?: ElementType;
+  y?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const MotionTag = motion[as as "div"] ?? motion.div;
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  if (prefersReducedMotion) {
+    const Tag = as as any;
+    return <Tag className={className}>{children}</Tag>;
+  }
 
-  const Component = Tag as any;
   return (
-    <Component
-      ref={ref}
-      className={`reveal ${visible ? "in-view" : ""} ${className}`}
-      style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
+    <MotionTag
+      className={className}
+      initial={{ opacity: 0, y, scale: 0.985 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{
+        duration: 0.7,
+        delay: delay / 1000,
+        ease: [0.16, 1, 0.3, 1],
+      }}
     >
       {children}
-    </Component>
+    </MotionTag>
   );
 }

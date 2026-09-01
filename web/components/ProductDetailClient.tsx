@@ -3,12 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart, Star, ChevronDown, ShieldCheck, RefreshCw, Award } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, Star, ChevronDown, ShieldCheck, RefreshCw, Award, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import ProductCard from "@/components/ProductCard";
 import ProductImage from "@/components/ProductImage";
 import ProductReviews from "@/components/ProductReviews";
+import Reveal from "@/components/Reveal";
 import type { Product } from "@/lib/types";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function ProductDetailClient({
   product,
@@ -25,6 +29,7 @@ export default function ProductDetailClient({
   const [size, setSize] = useState<string | null>(firstVariant?.size || null);
   const [openSection, setOpenSection] = useState<string | null>("description");
   const [added, setAdded] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
   const [error, setError] = useState("");
 
   const colors = [...new Set(product.variants.map((v) => v.color))];
@@ -61,9 +66,16 @@ export default function ProductDetailClient({
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
-                  className={`w-16 h-20 shrink-0 overflow-hidden border ${activeImage === i ? "border-clay" : "border-line"}`}
+                  className="relative w-16 h-20 shrink-0 overflow-hidden border border-line"
                 >
                   <ProductImage src={img} alt={`${product.name} — view ${i + 1}`} className="w-full h-full object-cover" />
+                  {activeImage === i && (
+                    <motion.div
+                      layoutId="thumb-active"
+                      className="absolute inset-0 border-2 border-clay"
+                      transition={{ duration: 0.3, ease: EASE }}
+                    />
+                  )}
                 </button>
               ))}
             </div>
@@ -74,20 +86,31 @@ export default function ProductDetailClient({
                 New Arrival
               </span>
             )}
-            <div className="aspect-[3/4] overflow-hidden bg-paper">
-              <ProductImage
-                src={product.images[activeImage]}
-                alt={product.name}
-                priority
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="w-full h-full object-cover"
-              />
+            <div className="relative aspect-[3/4] overflow-hidden bg-paper">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeImage}
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.35, ease: EASE }}
+                >
+                  <ProductImage
+                    src={product.images[activeImage]}
+                    alt={product.name}
+                    priority
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
 
         {/* Info */}
-        <div>
+        <Reveal>
           <h1 className="font-serif text-[26px] sm:text-[30px] text-ink mb-2">{product.name}</h1>
           <div className="text-[20px] font-medium text-ink mb-3">PKR {product.price.toLocaleString()}</div>
           {product.hasRealReviews && (
@@ -107,13 +130,16 @@ export default function ProductDetailClient({
               {colors.map((c) => {
                 const v = product.variants.find((vv) => vv.color === c);
                 return (
-                  <button
+                  <motion.button
                     key={c}
                     onClick={() => {
                       setColor(c);
                       const firstSize = product.variants.find((vv) => vv.color === c);
                       setSize(firstSize?.size || null);
                     }}
+                    whileTap={{ scale: 0.9 }}
+                    animate={{ scale: color === c ? 1.15 : 1 }}
+                    transition={{ duration: 0.25, ease: EASE }}
                     className={`w-8 h-8 rounded-full border-2 ${color === c ? "border-clay" : "border-line"}`}
                     style={{ backgroundColor: v?.colorHex }}
                     title={c}
@@ -130,40 +156,82 @@ export default function ProductDetailClient({
             </div>
             <div className="flex flex-wrap gap-2">
               {sizesForColor.map((v) => (
-                <button
+                <motion.button
                   key={v.sku}
                   disabled={v.inventory <= 0}
                   onClick={() => setSize(v.size)}
-                  className={`w-11 h-11 border text-[13px] flex items-center justify-center transition-colors ${
+                  whileTap={v.inventory > 0 ? { scale: 0.92 } : undefined}
+                  className={`w-11 h-11 border text-[13px] flex items-center justify-center transition-colors duration-200 ${
                     size === v.size ? "border-espresso bg-espresso text-cream" : "border-line text-ink"
                   } ${v.inventory <= 0 ? "opacity-30 line-through cursor-not-allowed" : "hover:border-espresso"}`}
                 >
                   {v.size}
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
 
-          {error && <div className="text-rose text-sm mb-3">{error}</div>}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="text-rose text-sm mb-3 overflow-hidden"
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
           {outOfStock && <div className="text-clay text-sm mb-3">This size is currently out of stock.</div>}
 
           <div className="flex gap-3 mb-8">
-            <button
+            <motion.button
               onClick={handleAddToBag}
               disabled={loading || outOfStock || !selectedVariant}
-              className="flex-1 bg-espresso text-cream py-4 text-[13px] tracking-widest uppercase hover:bg-ink transition-colors disabled:opacity-50"
+              whileTap={{ scale: 0.98 }}
+              className="relative flex-1 bg-espresso text-cream py-4 text-[13px] tracking-widest uppercase disabled:opacity-50"
             >
-              {added ? "Added to Bag ✓" : outOfStock ? "Out of Stock" : "Add to Bag"}
-            </button>
-            <button className="w-14 border border-line flex items-center justify-center hover:border-clay transition-colors">
-              <Heart size={18} />
-            </button>
+              <span className="flex items-center justify-center gap-2">
+                <AnimatePresence mode="popLayout">
+                  {added && (
+                    <motion.span
+                      initial={{ scale: 0, width: 0 }}
+                      animate={{ scale: 1, width: "auto" }}
+                      exit={{ scale: 0, width: 0 }}
+                      transition={{ duration: 0.25, ease: EASE }}
+                    >
+                      <Check size={15} />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                {added ? "Added to Bag" : outOfStock ? "Out of Stock" : "Add to Bag"}
+              </span>
+            </motion.button>
+            <motion.button
+              onClick={() => setWishlisted((w) => !w)}
+              whileTap={{ scale: 0.85 }}
+              className="w-14 border border-line flex items-center justify-center hover:border-clay transition-colors"
+            >
+              <motion.span animate={wishlisted ? { scale: [1, 1.35, 1] } : { scale: 1 }} transition={{ duration: 0.35 }}>
+                <Heart size={18} className={wishlisted ? "fill-clay text-clay" : ""} />
+              </motion.span>
+            </motion.button>
           </div>
-          {added && (
-            <button onClick={() => router.push("/cart")} className="text-[12px] text-clay underline underline-offset-2 -mt-6 mb-8 block">
-              View Bag
-            </button>
-          )}
+          <AnimatePresence>
+            {added && (
+              <motion.button
+                initial={{ opacity: 0, height: 0, marginTop: -32, marginBottom: 0 }}
+                animate={{ opacity: 1, height: "auto", marginTop: -24, marginBottom: 32 }}
+                exit={{ opacity: 0, height: 0, marginTop: -32, marginBottom: 0 }}
+                transition={{ duration: 0.3, ease: EASE }}
+                onClick={() => router.push("/cart")}
+                className="text-[12px] text-clay underline underline-offset-2 block overflow-hidden"
+              >
+                View Bag
+              </motion.button>
+            )}
+          </AnimatePresence>
 
           <div className="divide-y divide-line border-t border-b border-line">
             <Accordion
@@ -200,20 +268,24 @@ export default function ProductDetailClient({
               <Award size={18} className="text-clay" /> Quality Assured Premium Fabrics
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
 
-      <div className="mt-16 pt-12 border-t border-line max-w-2xl">
+      <Reveal className="mt-16 pt-12 border-t border-line max-w-2xl">
         <h2 className="text-[15px] tracking-widest uppercase text-ink mb-8">Customer Reviews</h2>
         <ProductReviews slug={product.slug} />
-      </div>
+      </Reveal>
 
       {related.length > 0 && (
         <div className="mt-20">
-          <h2 className="text-[15px] tracking-widest uppercase text-ink mb-8">You May Also Like</h2>
+          <Reveal as="h2" className="text-[15px] tracking-widest uppercase text-ink mb-8">
+            You May Also Like
+          </Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {related.map((p, i) => (
+              <Reveal key={p.id} delay={i * 80}>
+                <ProductCard product={p} />
+              </Reveal>
             ))}
           </div>
         </div>
@@ -237,9 +309,23 @@ function Accordion({
     <div>
       <button onClick={onClick} className="w-full flex items-center justify-between py-4 text-[13px] text-ink">
         {title}
-        <ChevronDown size={15} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3, ease: EASE }}>
+          <ChevronDown size={15} />
+        </motion.span>
       </button>
-      {open && <p className="text-[13px] text-muted leading-relaxed pb-4">{children}</p>}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="overflow-hidden"
+          >
+            <p className="text-[13px] text-muted leading-relaxed pb-4">{children}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

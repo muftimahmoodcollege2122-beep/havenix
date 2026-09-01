@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Heart,
@@ -135,11 +136,20 @@ export default function Header() {
           </Link>
           <Link href="/cart" aria-label="Cart" className="relative hover:text-clay transition-colors">
             <ShoppingBag size={19} />
-            {cart.itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-clay text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-                {cart.itemCount}
-              </span>
-            )}
+            <AnimatePresence>
+              {cart.itemCount > 0 && (
+                <motion.span
+                  key={cart.itemCount}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                  className="absolute -top-2 -right-2 bg-clay text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center"
+                >
+                  {cart.itemCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Link>
         </div>
       </div>
