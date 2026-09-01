@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "havenix-dev-secret-change-me";
+export const INSECURE_DEFAULT_JWT_SECRET = "havenix-dev-secret-change-me";
+const JWT_SECRET = process.env.JWT_SECRET || INSECURE_DEFAULT_JWT_SECRET;
 const EXPIRES_IN = "30d";
 
 export function signCustomerToken(customerId: string): string {
