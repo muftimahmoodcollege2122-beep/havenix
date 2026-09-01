@@ -64,8 +64,49 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Havenix API running on :${PORT}`);
   console.log(`Payment provider: ${process.env.PAYMENT_PROVIDER || "mock"}`);
+  checkClientUrlConfig();
   pool
     .query("SELECT 1")
     .then(() => console.log("Database connected."))
     .catch((err) => console.error("Database connection failed:", err.message));
 });
+
+/**
+ * CLIENT_URL drives payment-provider redirects (see routes/payments.ts). If it's
+ * missing, still a placeholder, or pointed at an old/dead deployment, checkout
+ * silently sends real customers to the wrong place after paying — with no error
+ * anywhere, since nothing throws. This just makes that misconfiguration loud in
+ * the deploy logs instead of silent in production.
+ */
+function checkClientUrlConfig() {
+  const url = process.env.CLIENT_URL;
+  if (!url) {
+    console.warn(
+      "⚠️  CLIENT_URL is not set. Payment-provider redirects will fall back to a default " +
+        "that is almost certainly wrong in production. Set CLIENT_URL to the storefront's " +
+        "real public URL (the one customers actually browse)."
+    );
+    return;
+  }
+  try {
+    const parsed = new URL(url);
+    // A bare, short "*.railway.app" host (no "up." prefix, no "-production-<hash>"
+    // suffix) doesn't match Railway's current domain format for a live service —
+    // it's a common sign of a stale/legacy domain left over from a deleted service.
+    const looksLegacyRailway =
+      parsed.hostname.endsWith(".railway.app") &&
+      !parsed.hostname.endsWith(".up.railway.app");
+    if (looksLegacyRailway) {
+      console.warn(
+        `⚠️  CLIENT_URL is set to "${url}", which doesn't match Railway's current domain ` +
+          `format (expected something ending in ".up.railway.app"). Double-check this isn't ` +
+          `pointing at an old, deleted, or orphaned deployment before relying on it for ` +
+          `payment redirects.`
+      );
+    } else {
+      console.log(`CLIENT_URL: ${url}`);
+    }
+  } catch {
+    console.warn(`⚠️  CLIENT_URL ("${url}") is not a valid URL.`);
+  }
+}
