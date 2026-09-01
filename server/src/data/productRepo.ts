@@ -11,6 +11,7 @@ export interface ProductRow {
   isNew: boolean;
   rating: number;
   reviewCount: number;
+  hasRealReviews: boolean;
   description: string;
   material: string;
   care: string;
@@ -29,7 +30,9 @@ export const PRODUCT_SELECT = `
   SELECT
     p.id, p.slug, p.name, p.category, p.sub_category AS "subCategory",
     p.price, p.compare_at_price AS "compareAtPrice", p.is_new AS "isNew",
-    p.rating::float AS rating, p.review_count AS "reviewCount",
+    COALESCE(rv.review_count, 0) > 0 AS "hasRealReviews",
+    CASE WHEN COALESCE(rv.review_count, 0) > 0 THEN rv.avg_rating ELSE p.rating::float END AS rating,
+    CASE WHEN COALESCE(rv.review_count, 0) > 0 THEN rv.review_count ELSE p.review_count END AS "reviewCount",
     p.description, p.material, p.care, p.size_range AS "sizeRange",
     COALESCE(
       (SELECT json_agg(pi.url ORDER BY pi.position) FROM product_images pi WHERE pi.product_id = p.id),
@@ -43,6 +46,11 @@ export const PRODUCT_SELECT = `
       '[]'
     ) AS variants
   FROM products p
+  LEFT JOIN (
+    SELECT product_id, COUNT(*)::int AS review_count, AVG(rating)::float AS avg_rating
+    FROM reviews WHERE is_approved = true
+    GROUP BY product_id
+  ) rv ON rv.product_id = p.id
 `;
 
 export async function listProducts(category?: string, sort?: string): Promise<ProductRow[]> {

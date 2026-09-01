@@ -17,12 +17,32 @@ export interface Product {
   isNew: boolean;
   rating: number;
   reviewCount: number;
+  hasRealReviews: boolean;
   images: string[];
   description: string;
   material: string;
   care: string;
   sizeRange: string;
   variants: ProductVariant[];
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  customerName: string;
+  verifiedPurchase: boolean;
+  createdAt: string;
+  updatedAt: string;
+  isOwn?: boolean;
+}
+
+export interface ReviewsResponse {
+  reviews: Review[];
+  summary: { rating: number; reviewCount: number };
+  ownReview: Review | null;
+  canReview: boolean;
 }
 
 export interface CartLine {

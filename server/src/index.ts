@@ -9,6 +9,7 @@ import adminRoutes from "./routes/admin";
 import paymentsRoutes from "./routes/payments";
 import uploadsRoutes from "./routes/uploads";
 import contactRoutes from "./routes/contact";
+import reviewsRoutes from "./routes/reviews";
 import { pool } from "./db/pool";
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api", adminRoutes);
 app.use("/api", paymentsRoutes);
 app.use("/api", uploadsRoutes);
 app.use("/api", contactRoutes);
+app.use("/api", reviewsRoutes);
 
 app.get("/api/health", async (_req, res) => {
   try {

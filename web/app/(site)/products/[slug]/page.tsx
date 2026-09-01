@@ -86,7 +86,7 @@ export default async function ProductPage({
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
     },
-    ...(product.reviewCount > 0
+    ...(product.hasRealReviews
       ? {
           aggregateRating: {
             "@type": "AggregateRating",

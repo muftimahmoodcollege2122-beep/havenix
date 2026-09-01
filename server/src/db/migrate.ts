@@ -12,7 +12,8 @@ async function migrate() {
     "005_customer_auth.sql",
     "006_admin_uploads.sql",
     "007_contact_messages.sql",
-    "008_verification.sql",
+    "008_reviews.sql",
+    "009_verification.sql",
   ];
   for (const file of files) {
     const schema = fs.readFileSync(path.join(__dirname, file), "utf-8");

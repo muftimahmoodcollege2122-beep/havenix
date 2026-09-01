@@ -9,6 +9,7 @@ import { useCart } from "@/context/CartContext";
 import { useCartFx } from "@/context/CartFxContext";
 import ProductCard from "@/components/ProductCard";
 import ProductImage from "@/components/ProductImage";
+import ProductReviews from "@/components/ProductReviews";
 import type { Product } from "@/lib/types";
 
 export default function ProductDetailClient({
@@ -104,12 +105,14 @@ export default function ProductDetailClient({
         <div>
           <h1 className="font-serif text-[26px] sm:text-[30px] text-ink mb-2">{product.name}</h1>
           <div className="text-[20px] font-medium text-ink mb-3">PKR {product.price.toLocaleString()}</div>
-          <div className="flex items-center gap-2 mb-6">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} size={14} className={i < Math.round(product.rating) ? "fill-clay text-clay" : "text-line"} />
-            ))}
-            <span className="text-[13px] text-muted">({product.reviewCount} Reviews)</span>
-          </div>
+          {product.hasRealReviews && (
+            <div className="flex items-center gap-2 mb-6">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={14} className={i < Math.round(product.rating) ? "fill-clay text-clay" : "text-line"} />
+              ))}
+              <span className="text-[13px] text-muted">({product.reviewCount} Review{product.reviewCount === 1 ? "" : "s"})</span>
+            </div>
+          )}
 
           <div className="mb-6">
             <div className="text-[12px] tracking-widest uppercase text-ink mb-3">
@@ -224,13 +227,6 @@ export default function ProductDetailClient({
             >
               Free shipping on orders over PKR 10,000. Easy 15-day returns on unworn items with tags attached.
             </Accordion>
-            <Accordion
-              title={`Reviews (${product.reviewCount})`}
-              open={openSection === "reviews"}
-              onClick={() => setOpenSection(openSection === "reviews" ? null : "reviews")}
-            >
-              Loved by customers for the quality fabric and thoughtful fit. Reviews load here.
-            </Accordion>
           </div>
 
           <div className="grid grid-cols-3 gap-4 mt-8 text-center text-[11px] text-muted">
@@ -245,6 +241,11 @@ export default function ProductDetailClient({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-16 pt-12 border-t border-line max-w-2xl">
+        <h2 className="text-[15px] tracking-widest uppercase text-ink mb-8">Customer Reviews</h2>
+        <ProductReviews slug={product.slug} />
       </div>
 
       {related.length > 0 && (
