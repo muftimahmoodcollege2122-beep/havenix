@@ -4,17 +4,7 @@ import { pool } from "./pool";
 
 async function migrate() {
   await pool.query('CREATE EXTENSION IF NOT EXISTS "pgcrypto";');
-  const files = [
-    "schema.sql",
-    "002_full_schema.sql",
-    "003_payments.sql",
-    "004_nullable_image.sql",
-    "005_customer_auth.sql",
-    "006_admin_uploads.sql",
-    "007_contact_messages.sql",
-    "008_reviews.sql",
-    "009_verification.sql",
-  ];
+  const files = ["schema.sql", "002_full_schema.sql"];
   for (const file of files) {
     const schema = fs.readFileSync(path.join(__dirname, file), "utf-8");
     await pool.query(schema);
