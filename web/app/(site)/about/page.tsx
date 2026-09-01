@@ -48,7 +48,7 @@ export default function AboutPage() {
             clothing with the same care. So we built one.
           </p>
         </Reveal>
-        <Reveal delay={150} className="aspect-[4/3] overflow-hidden rounded-sm">
+        <Reveal delay={150} className="aspect-[4/3] overflow-hidden rounded-sm relative">
           <ProductImage alt="Havenix studio" className="w-full h-full object-cover" />
         </Reveal>
       </section>
@@ -76,7 +76,7 @@ export default function AboutPage() {
 
       {/* Story detail */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
-        <Reveal className="aspect-[4/3] overflow-hidden rounded-sm md:order-2">
+        <Reveal className="aspect-[4/3] overflow-hidden rounded-sm md:order-2 relative">
           <ProductImage alt="Havenix craftsmanship" className="w-full h-full object-cover" />
         </Reveal>
         <Reveal className="md:order-1">

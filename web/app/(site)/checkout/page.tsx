@@ -231,7 +231,7 @@ export default function CheckoutPage() {
           <div className="space-y-4 mb-5 max-h-64 overflow-y-auto">
             {cart.items.map((item) => (
               <div key={item.sku} className="flex gap-3">
-                <div className="w-14 h-16 bg-cream overflow-hidden shrink-0">
+                <div className="w-14 h-16 bg-cream overflow-hidden shrink-0 relative">
                   <ProductImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">

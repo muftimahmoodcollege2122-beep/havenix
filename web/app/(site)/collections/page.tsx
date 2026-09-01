@@ -29,7 +29,7 @@ export default function CollectionsPage() {
         {DEPARTMENTS.map((d, i) => (
           <Reveal key={d.name} delay={i * 100}>
             <Link href={d.to} className="group block">
-              <div className="aspect-[4/5] overflow-hidden">
+              <div className="aspect-[4/5] overflow-hidden relative">
                 <ProductImage
                   alt={d.name}
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"

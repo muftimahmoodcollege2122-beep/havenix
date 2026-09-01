@@ -114,7 +114,7 @@ export default function AdminProductsPage() {
                 <tr key={p.id} className="border-b border-line last:border-0 align-top">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-14 bg-blush/30 overflow-hidden shrink-0">
+                      <div className="w-12 h-14 bg-blush/30 overflow-hidden shrink-0 relative">
                         {p.images[0] && (
                           <ProductImage src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
                         )}

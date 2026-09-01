@@ -74,7 +74,7 @@ export default function ProductDetailClient({
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
-                  className={`w-16 h-20 shrink-0 overflow-hidden border ${activeImage === i ? "border-clay" : "border-line"}`}
+                  className={`w-16 h-20 shrink-0 overflow-hidden border relative ${activeImage === i ? "border-clay" : "border-line"}`}
                 >
                   <ProductImage src={img} alt={`${product.name} — view ${i + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -87,7 +87,7 @@ export default function ProductDetailClient({
                 New Arrival
               </span>
             )}
-            <motion.div ref={imageRef} animate={imageControls} className="aspect-[3/4] overflow-hidden bg-paper">
+            <motion.div ref={imageRef} animate={imageControls} className="aspect-[3/4] overflow-hidden bg-paper relative">
               <ProductImage
                 src={product.images[activeImage]}
                 alt={product.name}

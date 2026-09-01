@@ -56,7 +56,7 @@ export default async function Home() {
           {CATEGORIES.map((c, i) => (
             <Reveal key={c.name} delay={i * 100}>
               <Link href={c.to} className="group block">
-                <div className="aspect-[4/5] overflow-hidden">
+                <div className="aspect-[4/5] overflow-hidden relative">
                   <ProductImage
                     alt={c.name}
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
@@ -112,7 +112,7 @@ export default async function Home() {
               </Link>
             </Magnetic>
           </div>
-          <div className="aspect-[4/3] md:aspect-auto overflow-hidden">
+          <div className="aspect-[4/3] md:aspect-auto overflow-hidden relative">
             <ProductImage
               alt="Quality fabrics"
               className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
@@ -129,7 +129,7 @@ export default async function Home() {
         </Reveal>
         <div className="hidden md:grid grid-cols-7 gap-3">
           {Array.from({ length: INSTA_COUNT }).map((_, i) => (
-            <Reveal key={i} delay={i * 60} className="aspect-square overflow-hidden">
+            <Reveal key={i} delay={i * 60} className="aspect-square overflow-hidden relative">
               <ProductImage
                 alt=""
                 className="w-full h-full object-cover transition-[opacity,transform] duration-500 hover:opacity-80 hover:scale-105"
@@ -150,7 +150,7 @@ export default async function Home() {
         <div className="md:hidden -mx-6">
           <div className="marquee-track gap-3 px-6">
             {Array.from({ length: INSTA_COUNT * 2 }).map((_, i) => (
-              <div key={i} className="w-28 h-28 shrink-0 overflow-hidden">
+              <div key={i} className="w-28 h-28 shrink-0 overflow-hidden relative">
                 <ProductImage alt="" className="w-full h-full object-cover" />
               </div>
             ))}
