@@ -30,7 +30,7 @@ export default function CartPage() {
           <div className="space-y-6">
             {cart.items.map((item) => (
               <div key={item.sku} className="flex gap-4 pb-6 border-b border-line">
-                <div className="w-24 h-28 bg-paper overflow-hidden shrink-0">
+                <div className="w-24 h-28 bg-paper overflow-hidden shrink-0 relative">
                   <ProductImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 flex flex-col">

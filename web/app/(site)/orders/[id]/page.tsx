@@ -78,7 +78,7 @@ export default async function OrderTrackingPage({ params }: { params: Promise<{ 
           <div className="border border-line rounded-sm divide-y divide-line mb-10">
             {order.items.map((item) => (
               <div key={item.sku} className="flex flex-wrap items-center gap-4 px-4 sm:px-5 py-4">
-                <div className="w-14 h-16 bg-paper overflow-hidden shrink-0">
+                <div className="w-14 h-16 bg-paper overflow-hidden shrink-0 relative">
                   <ProductImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-[140px]">
