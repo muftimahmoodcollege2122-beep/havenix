@@ -881,3 +881,78 @@ CREATE INDEX IF NOT EXISTS idx_return_requests_order ON return_requests(order_id
 CREATE INDEX IF NOT EXISTS idx_promotion_products_promo ON promotion_products(promotion_id);
 CREATE INDEX IF NOT EXISTS idx_discount_codes_code ON discount_codes(code);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
+
+-- ===================== PAYMENTS (was 003_payments.sql) =====================
+-- Payment tracking on orders. Pre-existing rows are treated as already-paid demo data.
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT NOT NULL DEFAULT 'paid';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_orders_payment_status ON orders(payment_status);
+CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
+
+-- ===================== NULLABLE ORDER ITEM IMAGE (was 004_nullable_image.sql) =====================
+-- Rebrand removed demo product images — image is now optional (frontend renders
+-- a generated placeholder when absent), so this must not be a hard requirement
+-- on order line items either.
+ALTER TABLE order_items ALTER COLUMN image DROP NOT NULL;
+
+-- ===================== CUSTOMER AUTH (was 005_customer_auth.sql) =====================
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS marketing_opt_in BOOLEAN NOT NULL DEFAULT false;
+
+-- ===================== ADMIN UPLOADS (was 006_admin_uploads.sql) =====================
+CREATE TABLE IF NOT EXISTS admin_uploads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  data BYTEA NOT NULL,
+  mime_type TEXT NOT NULL,
+  size_bytes INT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ===================== CONTACT MESSAGES (was 007_contact_messages.sql) =====================
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  message TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'new', -- new | read | replied
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON contact_messages(status);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON contact_messages(created_at DESC);
+
+-- ===================== REVIEWS (was 008_reviews.sql) =====================
+-- One review per customer per product (they can edit it, not spam duplicates).
+-- No moderation queue exists yet, so reviews are auto-approved on submit —
+-- is_approved stays as a real column so a moderation flow can be added later
+-- without a schema change.
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
+ALTER TABLE reviews ALTER COLUMN is_approved SET DEFAULT true;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_customer_product ON reviews(customer_id, product_id);
+
+CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id) WHERE is_approved = true;
+
+-- ===================== VERIFICATION (was 009_verification.sql) =====================
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN NOT NULL DEFAULT false;
+
+-- One-time codes used to verify a customer's email or phone number.
+-- A row is created per send; the most recent unconsumed, unexpired row for a
+-- given (customer, channel) pair is the one checked on confirm.
+CREATE TABLE IF NOT EXISTS otp_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+  channel TEXT NOT NULL CHECK (channel IN ('email', 'sms')),
+  target TEXT NOT NULL,
+  code_hash TEXT NOT NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  max_attempts INT NOT NULL DEFAULT 5,
+  expires_at TIMESTAMPTZ NOT NULL,
+  consumed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_otp_codes_lookup ON otp_codes (customer_id, channel, created_at DESC);

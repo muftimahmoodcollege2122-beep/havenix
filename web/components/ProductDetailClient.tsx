@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { Heart, Star, ChevronDown, ShieldCheck, RefreshCw, Award, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useCartFx } from "@/context/CartFxContext";
 import ProductCard from "@/components/ProductCard";
 import ProductImage from "@/components/ProductImage";
 import ProductReviews from "@/components/ProductReviews";
@@ -21,8 +21,8 @@ export default function ProductDetailClient({
   product: Product;
   related: Product[];
 }) {
-  const router = useRouter();
   const { addItem, loading } = useCart();
+  const { flyToBag } = useCartFx();
   const [activeImage, setActiveImage] = useState(0);
   const firstVariant = product.variants[0];
   const [color, setColor] = useState<string | null>(firstVariant?.color || null);
@@ -31,6 +31,8 @@ export default function ProductDetailClient({
   const [added, setAdded] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [error, setError] = useState("");
+  const imageRef = useRef<HTMLDivElement | null>(null);
+  const imageControls = useAnimation();
 
   const colors = [...new Set(product.variants.map((v) => v.color))];
   const sizesForColor = product.variants.filter((v) => v.color === color);
@@ -40,6 +42,16 @@ export default function ProductDetailClient({
   const handleAddToBag = async () => {
     if (!selectedVariant) return;
     setError("");
+
+    // Product image shrinks slightly, then a clone travels toward the bag icon.
+    imageControls.start({
+      scale: [1, 0.94, 1],
+      transition: { duration: 0.35, ease: "easeOut" },
+    });
+    if (imageRef.current) {
+      flyToBag(imageRef.current, product.images[activeImage]);
+    }
+
     try {
       await addItem(product.id, selectedVariant.sku, 1);
       setAdded(true);
@@ -86,7 +98,7 @@ export default function ProductDetailClient({
                 New Arrival
               </span>
             )}
-            <div className="relative aspect-[3/4] overflow-hidden bg-paper">
+            <motion.div ref={imageRef} animate={imageControls} className="relative aspect-[3/4] overflow-hidden bg-paper">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={activeImage}
@@ -105,7 +117,7 @@ export default function ProductDetailClient({
                   />
                 </motion.div>
               </AnimatePresence>
-            </div>
+            </motion.div>
           </div>
         </div>
 
@@ -189,24 +201,34 @@ export default function ProductDetailClient({
             <motion.button
               onClick={handleAddToBag}
               disabled={loading || outOfStock || !selectedVariant}
-              whileTap={{ scale: 0.98 }}
-              className="relative flex-1 bg-espresso text-cream py-4 text-[13px] tracking-widest uppercase disabled:opacity-50"
+              whileTap={{ scale: 0.96 }}
+              transition={{ duration: 0.12 }}
+              className="flex-1 bg-espresso text-cream py-4 text-[13px] tracking-widest uppercase hover:bg-ink transition-colors disabled:opacity-50 overflow-hidden relative"
             >
-              <span className="flex items-center justify-center gap-2">
-                <AnimatePresence mode="popLayout">
-                  {added && (
-                    <motion.span
-                      initial={{ scale: 0, width: 0 }}
-                      animate={{ scale: 1, width: "auto" }}
-                      exit={{ scale: 0, width: 0 }}
-                      transition={{ duration: 0.25, ease: EASE }}
-                    >
-                      <Check size={15} />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                {added ? "Added to Bag" : outOfStock ? "Out of Stock" : "Add to Bag"}
-              </span>
+              <AnimatePresence mode="wait" initial={false}>
+                {added ? (
+                  <motion.span
+                    key="added"
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <Check size={15} /> Added to Bag
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="idle"
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {outOfStock ? "Out of Stock" : "Add to Bag"}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </motion.button>
             <motion.button
               onClick={() => setWishlisted((w) => !w)}
@@ -218,20 +240,19 @@ export default function ProductDetailClient({
               </motion.span>
             </motion.button>
           </div>
-          <AnimatePresence>
-            {added && (
-              <motion.button
-                initial={{ opacity: 0, height: 0, marginTop: -32, marginBottom: 0 }}
-                animate={{ opacity: 1, height: "auto", marginTop: -24, marginBottom: 32 }}
-                exit={{ opacity: 0, height: 0, marginTop: -32, marginBottom: 0 }}
-                transition={{ duration: 0.3, ease: EASE }}
-                onClick={() => router.push("/cart")}
-                className="text-[12px] text-clay underline underline-offset-2 block overflow-hidden"
-              >
-                View Bag
-              </motion.button>
-            )}
-          </AnimatePresence>
+          {added && (
+            <button
+              onClick={() => {
+                // See Header.tsx bag icon for why this is a hard navigation
+                // rather than router.push — soft nav from a dynamic product
+                // page has been observed serving stale cart-page content.
+                window.location.href = "/cart";
+              }}
+              className="text-[12px] text-clay underline underline-offset-2 -mt-6 mb-8 block"
+            >
+              View Bag
+            </button>
+          )}
 
           <div className="divide-y divide-line border-t border-b border-line">
             <Accordion

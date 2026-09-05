@@ -77,9 +77,9 @@ function AccountContent() {
   const needsVerification = !customer.emailVerified || !customer.phoneVerified;
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
-      <div className="grid md:grid-cols-[240px_1fr] gap-6 md:gap-10">
-        <aside>
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full overflow-x-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 md:gap-10 w-full">
+        <aside className="min-w-0 w-full">
           <div className="flex items-center justify-between gap-3 mb-4 md:mb-8">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 shrink-0 rounded-full bg-blush flex items-center justify-center text-ink font-serif text-[15px]">

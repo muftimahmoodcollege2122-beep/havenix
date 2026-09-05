@@ -18,16 +18,16 @@ for server-rendered pages, per-page metadata, and a real sitemap. `client/` has 
 
 ## Database
 
-Postgres schema lives in `server/src/db/` as a series of migration files, applied in order by
+Postgres schema lives in `server/src/db/` as two migration files, applied in order by
 `npm run db:migrate`:
 
 - `schema.sql` — core entities: customers, addresses, products, product_images, product_variants,
   carts, cart_items, orders, order_items
-- `002_full_schema.sql` — extended commerce schema (inventory, promotions, reviews, etc.)
-- `003_payments.sql` — payment status/method tracking on orders
-- `004_nullable_image.sql` — order line items no longer require an image
-- `005_customer_auth.sql` — customer `phone` + `marketing_opt_in` columns
-- `006_admin_uploads.sql` — stores admin-uploaded product images as binary data in Postgres
+- `002_full_schema.sql` — everything since: extended commerce schema (inventory, promotions,
+  reviews, etc.), payment status/method tracking, customer auth fields, admin image uploads,
+  contact messages, and email/SMS verification. Was originally split across `002`–`009`; merged
+  into one file since every statement in it is idempotent (`IF NOT EXISTS` / safe `ALTER`), so
+  consolidating changes nothing about what a fresh or already-migrated database ends up with.
 
 Checkout runs inside a DB transaction: locks the variant rows, checks stock, inserts the order,
 decrements inventory, and clears the cart — or rolls back entirely on any failure. The
