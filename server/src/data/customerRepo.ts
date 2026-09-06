@@ -80,24 +80,3 @@ export async function updateCustomerContact(id: string, patch: { phone?: string 
     [id, patch.phone ?? null, patch.name ?? null]
   );
 }
-
-/**
- * Queues a notification tied to the customer's full contact details.
- * No live email/SMS provider is wired up yet — this persists the record so a
- * future sending job (or provider integration) can pick it up and dispatch it.
- */
-export async function queueNotification(
-  customerId: string | null,
-  channel: "email" | "sms",
-  code: string,
-  payload: Record<string, unknown>
-) {
-  await pool.query(
-    `INSERT INTO notifications (customer_id, channel, status, sent_at)
-     VALUES ($1, $2, 'pending', NULL)`,
-    [customerId, channel]
-  );
-  // `code`/`payload` are kept for when a template-rendering + delivery worker is added.
-  void code;
-  void payload;
-}

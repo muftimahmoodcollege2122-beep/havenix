@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { pool } from "../db/pool";
 import { optionalCustomer } from "../middleware/customerAuth";
-import { updateCustomerContact, queueNotification } from "../data/customerRepo";
+import { updateCustomerContact } from "../data/customerRepo";
+import { notifyNewOrder } from "../services/orderNotifications";
 
 const router = Router();
 
@@ -86,12 +87,10 @@ router.post("/checkout", optionalCustomer, async (req, res) => {
       // updates, etc.) have their latest contact details.
       await updateCustomerContact(req.customerId, { phone: contact.phone });
     }
-    await queueNotification(req.customerId || null, "email", "order_confirmation", {
-      orderId,
-      email: contact.email,
-      name: contact.fullName,
-      total,
-    });
+
+    // Fire-and-forget: don't make the customer wait on WhatsApp delivery,
+    // and never let a notification hiccup fail an already-committed order.
+    notifyNewOrder(orderId).catch((err) => console.error("notifyNewOrder error:", err));
 
     res.status(201).json({
       orderId,

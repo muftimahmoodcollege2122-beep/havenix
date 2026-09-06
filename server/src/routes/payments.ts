@@ -14,7 +14,8 @@ import {
 } from "../data/paymentsRepo";
 import type { PaymentMethod } from "../services/paymentProvider";
 import { optionalCustomer } from "../middleware/customerAuth";
-import { updateCustomerContact, queueNotification } from "../data/customerRepo";
+import { updateCustomerContact } from "../data/customerRepo";
+import { notifyNewOrder } from "../services/orderNotifications";
 
 const router = Router();
 
@@ -104,15 +105,7 @@ router.post("/payments/webhook", async (req, res) => {
       if (!result.ok) {
         console.error(`Failed to finalize order ${match.orderId}: ${result.reason}`);
       } else if (!result.alreadyProcessed) {
-        const order = await getOrderPaymentStatus(match.orderId);
-        if (order) {
-          await queueNotification(order.customerId || null, "email", "order_confirmation", {
-            orderId: order.id,
-            email: order.contactEmail,
-            name: order.contactName,
-            total: order.total,
-          });
-        }
+        notifyNewOrder(match.orderId).catch((err) => console.error("notifyNewOrder error:", err));
       }
     } else if (event.status === "failed") {
       await failOrderPayment(match.orderId);
@@ -151,15 +144,7 @@ router.post("/payments/mock-complete", async (req, res) => {
     const result = await finalizeOrderPayment(match.orderId);
     if (!result.ok) return res.status(400).json({ error: result.reason });
     if (!result.alreadyProcessed) {
-      const order = await getOrderPaymentStatus(match.orderId);
-      if (order) {
-        await queueNotification(order.customerId || null, "email", "order_confirmation", {
-          orderId: order.id,
-          email: order.contactEmail,
-          name: order.contactName,
-          total: order.total,
-        });
-      }
+      notifyNewOrder(match.orderId).catch((err) => console.error("notifyNewOrder error:", err));
     }
   } else {
     await failOrderPayment(match.orderId);
